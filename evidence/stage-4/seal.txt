@@ -1,5 +1,6 @@
-stage-4 probe seal (examiner)
-sha256: 2803a2c672b489e060cdd0043aa3409d72e49ecba0a7dc357f2a11217f99797c
-files: ./RUN-PROBES.md ./conftest.py ./s2lib.py ./s3lib.py ./s4lib.py ./test_basics.py ./test_concurrency.py ./test_cutoff.py ./test_dst.py ./test_errors.py ./test_export_import.py ./test_idempotency.py ./test_moves.py ./test_patch.py ./test_reservations.py ./test_s2_api.py ./test_s2_ui.py ./test_s3_compat.py ./test_s3_explain_history.py ./test_s3_policies.py ./test_s3_series.py ./test_s4_compat.py ./test_s4_replan.py ./test_s4_series_amend.py 
+stage-4 probe seal (examiner), version 2
+sha256: d50cd2430492793c49bc90915ffc443a7a3950d4832ad2607a49df5e08bc4640
+supersedes: 2803a2c672b489e060cdd0043aa3409d72e49ecba0a7dc357f2a11217f99797c (commit 6c23855). Version 2 adds test_s4_ui_policy.py (S4-C7, stage-3 verdict O2), ordered by lead at 07:35 before any reveal; no other probe changed.
+files: ./RUN-PROBES.md ./conftest.py ./s2lib.py ./s3lib.py ./s4lib.py ./test_basics.py ./test_concurrency.py ./test_cutoff.py ./test_dst.py ./test_errors.py ./test_export_import.py ./test_idempotency.py ./test_moves.py ./test_patch.py ./test_reservations.py ./test_s2_api.py ./test_s2_ui.py ./test_s3_compat.py ./test_s3_explain_history.py ./test_s3_policies.py ./test_s3_series.py ./test_s4_compat.py ./test_s4_replan.py ./test_s4_series_amend.py ./test_s4_ui_policy.py 
 reproduce (run inside the probe directory, later evidence/stage-4/probes/):
   find . -type f ! -path '*/__pycache__/*' | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256

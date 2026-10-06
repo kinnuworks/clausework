@@ -13,6 +13,7 @@ Probe files: `test_s4_replan.py`, `test_s4_series_amend.py`, `test_s4_compat.py`
 | S4-C4 | all-or-nothing (S1-90, S3-55) | failed apply (stale) and failed amend leave records, histories, revisions and keys unchanged | test_stale_plan_and_other_restaurant, test_amend_atomic_and_precedence |
 | S4-C5 | S1-97 moves precedence by input order (stage-2 audit weak spot: second variant) | [own cancelled, other-restaurant] gives 409 reservation_cancelled; [own, other-restaurant] gives 422 | test_moves_precedence_variant |
 | S4-C6 | all S1/S2/S3 clauses | carried probe files | test_basics … test_s3_series |
+| S4-C7 | stage-2 grid rule "A cell is true exactly when its table_id is in that slot's available_table_ids" plus combination cells "shown when a declared pair is available", under stage-3 "Availability and booking decisions use the selected policy" (stage-3 verdict O2, lead 07:35) | after a policy raises capacities (q_1:6, q_2:6), every single cell and every pair cell in the UI grid must match GET /availability for parties 6, 10 and 12. A pair the API offers must be present and true; a pair it does not offer is absent or false | test_s4_ui_policy::test_grid_follows_policy_capacities |
 
 ## Seating changes after a closure
 
