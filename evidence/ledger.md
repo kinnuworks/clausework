@@ -56,3 +56,6 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:24 | 4 (look-ahead) | finisher design | - | 6248726 | - | Ticket re-reads GET /reservations/{ref} after receipt so applied plans show; design only |
 | 07:25 | 3 | verdict | 1 | bc172db | finisher: round 2 on a8900ab (already pre-checked passing) | REJECT F1 surface: grid hid policy pair (fixed in a8900ab). API, S1-3 checks 120/25/7, probes 101/101 pass. O1 '1 seats' |
 | 07:27 | 3 | fix report | 2 | 840eef4 | inspector: round 2 verdict | Finisher O1 '1 seat' only (stage-3/ui, 3 files). Ticket re-read deferred to stage 4 |
+| 07:30 | 3 | verdict | 2 | 840eef4 | - | ACCEPT. Isolated S1 120/120, S2 25/25, S3 7/7, claimed 3; probes 101/101; 18/18 browser flows |
+| 07:30 | 3 | FROZEN | 2 | 840eef4 (tag stage-3-frozen) | - | Rounds used 2; time 07:13-07:30. Open clauses: none known. Obs: 2-seat tile at 375 shows dots without text (aria-label has count) |
+| 07:30 | 4 | OPEN | 1 | - | builder: stage-4 revision by 08:15; finisher: ticket re-read into stage-4/ui + applied-plan truth; examiner: stage-4 seal by 08:05 | |
