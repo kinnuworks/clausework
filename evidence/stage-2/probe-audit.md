@@ -4,6 +4,12 @@ Revision audited: `c7275b7433d6ab12c4f208af69382bb59c38b0d7` (`stage-2/`), clean
 Probes: `evidence/stage-2/probes/`, revealed unchanged in df866d8. The recomputed seal matches v2 `6a3480c8…d4ca0`.
 Stage-1 export source for the compatibility probe: tag `stage-1-frozen` (fa79f76), exported the same way and run as TK_S1_URL.
 
+## Re-run on the frozen revision fbae59c (stage-2-frozen)
+fbae59c's stage-2/ is c7275b7 plus finisher CSS polish (stage-2/ui/css/base.css and search.css only). I repeated the whole audit on a
+clean export of fbae59c, applying the same 5 defects: identical results. Baseline 79/79 pass. D1 2 failed, D2 1, D3 1, D4 3, D5 8:
+the same tests as below. Supplied checks: stage 1 "120 passed" on every copy; stage 2 "24 passed, 1 error" (the upgrade check, which
+cannot run in scratch mode) on every copy, baseline included.
+
 ## Baseline
 On the unmodified revision all **79/79 probes pass**, including the stage-1-frozen export → stage-2 import probe and the 11 Playwright
 UI probes. No probe contradicted the specification, so there are no probe corrections.
