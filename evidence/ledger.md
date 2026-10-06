@@ -59,3 +59,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:30 | 3 | verdict | 2 | 840eef4 | - | ACCEPT. Isolated S1 120/120, S2 25/25, S3 7/7, claimed 3; probes 101/101; 18/18 browser flows |
 | 07:30 | 3 | FROZEN | 2 | 840eef4 (tag stage-3-frozen) | - | Rounds used 2; time 07:13-07:30. Open clauses: none known. Obs: 2-seat tile at 375 shows dots without text (aria-label has count) |
 | 07:30 | 4 | OPEN | 1 | - | builder: stage-4 revision by 08:15; finisher: ticket re-read into stage-4/ui + applied-plan truth; examiner: stage-4 seal by 08:05 | |
+| 07:33 | 4 | inspect | 1 | 4c5ea79 (builder 9334ea9 + finisher ui) | inspector: verdict by 08:00; examiner: reveal + audit by 08:05 | Builder isolated S1 120/120, S2 25/25, S3 7/7, S4 6/6, claimed 4. Seal 6c23855 2803a2c6…797c |
