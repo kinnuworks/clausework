@@ -22,6 +22,11 @@ function send(res, status, body) {
   res.end(text);
 }
 
+function sendRaw(res, { status, raw, contentType }) {
+  res.writeHead(status, { 'Content-Type': contentType, 'Content-Length': raw.length, 'Cache-Control': 'no-cache' });
+  res.end(raw);
+}
+
 function sendError(res, err) {
   if (!(err instanceof ApiError)) {
     console.error(err);
@@ -48,7 +53,7 @@ function readBody(req) {
 
 function decodeParams(params) {
   try {
-    return params.map((p) => decodeURIComponent(p));
+    return params.map((p) => (p === undefined ? p : decodeURIComponent(p)));
   } catch {
     throw notFound();
   }
@@ -65,7 +70,8 @@ async function handle(req, res) {
       params: decodeParams(route.params), rawBody,
     };
     const result = await route.handler(ctx);
-    send(res, result.status, result.body);
+    if (result.raw) sendRaw(res, result);
+    else send(res, result.status, result.body);
   } catch (err) {
     sendError(res, err);
   }

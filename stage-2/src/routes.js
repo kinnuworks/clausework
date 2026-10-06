@@ -10,6 +10,7 @@ const browse = require('./browse');
 const R = require('./reservations');
 const { readKey, once } = require('./idempotency');
 const { formatUtc } = require('./time');
+const screens = require('./screens');
 
 function jsonObject(ctx) {
   let value;
@@ -57,6 +58,8 @@ function importState(ctx) {
 }
 
 const routes = [
+  ['GET', /^\/(signup|login|lookup)?$/, screens.screen],
+  ['GET', /^\/static\/(.+)$/, (ctx) => screens.staticFile(ctx.params[0])],
   ['GET', /^\/health$/, () => ({ status: 200, body: { status: 'ok' } })],
   ['POST', /^\/_test\/reset$/, reset],
   ['GET', /^\/_test\/export$/, () => ({ status: 200, body: S.exportStore(S.getStore()) })],
