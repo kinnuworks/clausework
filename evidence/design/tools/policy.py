@@ -85,6 +85,7 @@ with sync_playwright() as p:
         t5 = page.get_by_test_id(f"slot-t_5-{times[0]}")
         results.append((f"{width}: t_5 seats from policy (6), open", t5.get_attribute("data-available") == "true"
                         and "6 seats" in t5.get_attribute("aria-label")))
+        page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / f"{width}-21-policy-grid-party5.png"), full_page=True)
 
         search(page, 7, DAY)
@@ -110,6 +111,7 @@ with sync_playwright() as p:
         end = f"{(h * 60 + m + 120) // 60:02d}:{(h * 60 + m + 120) % 60:02d}"
         details = page.get_by_test_id("confirmation-details").inner_text()
         results.append((f"{width}: ticket shows {slot}–{end} (policy duration 120)", f"{slot}–{end}" in details))
+        page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / f"{width}-22-policy-ticket.png"))
         page.get_by_role("link", name="Your booking").click()
         page.get_by_test_id("lookup-reference-input").fill(ref)
@@ -117,6 +119,7 @@ with sync_playwright() as p:
         expect(page.get_by_test_id("reservation-status")).to_have_text("confirmed")
         detail = page.get_by_test_id("reservation-detail").inner_text()
         results.append((f"{width}: lookup shows end time and accepted 1-hour cutoff", f"{slot}–{end}" in detail and "1 hour" in detail))
+        page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / f"{width}-23-policy-lookup.png"), full_page=True)
         overflow = page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
         results.append((f"{width}: no sideways scroll", overflow <= 0))
