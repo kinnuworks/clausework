@@ -1,0 +1,5 @@
+stage-2 probe seal (examiner)
+sha256: ed59370570cd73bf69837a71fccf064e48e8bc417152716543ccd397247ac047
+files: ./RUN-PROBES.md ./conftest.py ./s2lib.py ./test_basics.py ./test_concurrency.py ./test_cutoff.py ./test_dst.py ./test_errors.py ./test_export_import.py ./test_idempotency.py ./test_moves.py ./test_patch.py ./test_reservations.py ./test_s2_api.py ./test_s2_compat.py ./test_s2_ui.py 
+reproduce (run inside the probe directory, later evidence/stage-2/probes/):
+  find . -type f ! -path '*/__pycache__/*' | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256
