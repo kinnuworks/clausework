@@ -34,3 +34,6 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 06:48 | 1 | seal in | 1 | 0166619 | builder: revision report | 96 clauses, 53 probes, seal 9901cc05…b993 |
 | 06:52 | 1 | inspect | 1 | 85374cb | inspector: verdict-1 by 07:10; examiner: reveal + probe audit by 07:10 | Builder self-check isolated 120/120, claimed stage 1. 8 doubts forwarded to inspector |
 | 06:55 | 1 | verdict | 1 | 85374cb | builder: fix F1 (5xx on deeply nested JSON, idempotency canonical recursion) → inspector round 2 | REJECT. Supplied 120/120, probes 53/53, probe audit 5/5 planted caught |
+| 06:58 | 1 | round 2 ordered | 2 | 85374cb | builder: F1 fix + O2 (seed hashing speed) + O3 (numeric reference) by 07:08; examiner: ruling on moves 404-vs-409 order | Inspector accepted all 8 builder doubts |
+| 06:58 | 2 (look-ahead) | examiner order | - | - | examiner: stage-2 clauses + seal by 07:25 | |
+| 07:00 | 2 (look-ahead) | finisher UI in | - | 8282510 / b297385 | finisher: polish rough edges | 48 captures, 21/21 behaviour self-check against mock API; serving contract in evidence/design/ui/README.md |
