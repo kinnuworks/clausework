@@ -1,7 +1,7 @@
 // Availability timetable: one row per start time, one seating tile per table,
 // one linked tile per approved pair. Tile width follows the seats it holds.
 import { h, icon } from "../dom.js";
-import { hhmm, tableName, tablesPhrase } from "../format.js";
+import { hhmm, tableName, tablesPhrase, seatCount } from "../format.js";
 
 const MAX_DOTS = 12;
 // Seat-columns per time row (search.css must match): one column per seat, at least two.
@@ -113,11 +113,11 @@ function tile(option, slot, ctx) {
     "data-available": available ? "true" : "false",
     "data-state": st.state,
     "aria-pressed": available ? (chosen ? "true" : "false") : null,
-    "aria-label": `${name}${pair ? ", joined" : ""}, ${option.capacity} seats, ${time}: ${st.word}`,
+    "aria-label": `${name}${pair ? ", joined" : ""}, ${seatCount(option.capacity)}, ${time}: ${st.word}`,
     style: { "--span": String(spanOf(option.capacity, WIDE_COLUMNS)), "--span-sm": String(spanOf(option.capacity, PHONE_COLUMNS)) },
     onclick: () => { if (available) ctx.onPick({ ids: option.ids, tables: option.tables, capacity: option.capacity, slot, key }); },
   },
-    h("span", { class: "tile-top" }, label, h("span", { class: "count-text" }, `${option.capacity} seats`), seats(option.capacity, "seats seats-sm")),
+    h("span", { class: "tile-top" }, label, h("span", { class: "count-text" }, seatCount(option.capacity)), seats(option.capacity, "seats seats-sm")),
     pair ? h("span", { class: "pair-note" }, "Joined tables") : null,
     h("span", { class: "tile-foot" },
       h("span", { class: "tile-status" }, icon(st.icon), h("span", { class: "word" }, st.word)),
