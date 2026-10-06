@@ -40,3 +40,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 06:59 | 1 | verdict | 2 | fa79f76 | - | ACCEPT. 120/120 isolated, 53/53 probes, 97 clauses pass. Ruling S1-97: moves errors in input order |
 | 06:59 | 1 | FROZEN | 2 | fa79f76 (tag stage-1-frozen) | - | Rounds used 2; time 06:38-06:59 (21 min). Open clauses: none known. Note: F1 regression probe to be carried in stage-2 probes |
 | 06:59 | 2 | OPEN | 1 | - | builder: stage-2 revision by 07:40; finisher: copy UI into stage-2 static dir + real-API captures; examiner: stage-2 seal by 07:25 | |
+| 07:00 | 1 | ruling | - | 14b7fe2 | - | S1-97 final: moves errors resolved per item in input order (404→422 restaurant→409 cancelled→409 cutoff→field codes), occupancy last. Frozen fa79f76 already conforms (inspector verified) |
