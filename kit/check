@@ -1,0 +1,28 @@
+#!/bin/sh
+# Event harness wrapper. Usage:
+#   check run <track> <repo> <stage|all> [isolated]
+#   check build <track> <folder> <stage>
+#   check repo <track> <repo>
+# Every run writes into a new directory under band-work/checks and prints its path.
+set -eu
+ROOT=/Users/kinnu/hackathon4
+K="$ROOT/dark-factory-wearedevs"
+PY="$K/.venv/bin/python"
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.orbstack/bin:$PATH"
+cmd="$1"; track="$2"
+out="$ROOT/band-work/checks/$(date +%m%d-%H%M%S)-$$"
+cd "$K"
+case "$cmd" in
+  run)
+    repo="$3"; stage="$4"; mode="${5:-host}"
+    if [ "$stage" = all ]; then set -- --all; else set -- --stage "$stage"; fi
+    "$PY" -m harness run --track "$track" --repo "$repo" "$@" --mode "$mode" --out "$out" || true
+    echo "logs: $out" ;;
+  build)
+    folder="$3"; stage="$4"
+    "$PY" -m harness run --track "$track" --build "$folder" --stages $(seq 1 "$stage") --out "$out" || true
+    echo "logs: $out" ;;
+  repo)
+    "$PY" -m harness check "$(cd "$OLDPWD" && cd "$(dirname "$3")" && pwd)/$(basename "$3")" --track "$track" || true ;;
+  *) echo "unknown command $cmd" >&2; exit 2 ;;
+esac
