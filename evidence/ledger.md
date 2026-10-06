@@ -37,6 +37,6 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 06:58 | 1 | round 2 ordered | 2 | 85374cb | builder: F1 fix + O2 (seed hashing speed) + O3 (numeric reference) by 07:08; examiner: ruling on moves 404-vs-409 order | Inspector accepted all 8 builder doubts |
 | 06:58 | 2 (look-ahead) | examiner order | - | - | examiner: stage-2 clauses + seal by 07:25 | |
 | 07:00 | 2 (look-ahead) | finisher UI in | - | 8282510 / b297385 | finisher: polish rough edges | 48 captures, 21/21 behaviour self-check against mock API; serving contract in evidence/design/ui/README.md |
-| 07:04 | 1 | verdict | 2 | fa79f76 | - | ACCEPT. 120/120 isolated, 53/53 probes, 97 clauses pass. Ruling S1-97: moves errors in input order |
-| 07:05 | 1 | FROZEN | 2 | fa79f76 (tag stage-1-frozen) | - | Rounds used 2; time 06:38-07:05 (27 min). Open clauses: none known. Note: F1 regression probe to be carried in stage-2 probes |
-| 07:05 | 2 | OPEN | 1 | - | builder: stage-2 revision by 07:40; finisher: copy UI into stage-2 static dir + real-API captures; examiner: stage-2 seal by 07:25 | |
+| 06:59 | 1 | verdict | 2 | fa79f76 | - | ACCEPT. 120/120 isolated, 53/53 probes, 97 clauses pass. Ruling S1-97: moves errors in input order |
+| 06:59 | 1 | FROZEN | 2 | fa79f76 (tag stage-1-frozen) | - | Rounds used 2; time 06:38-06:59 (21 min). Open clauses: none known. Note: F1 regression probe to be carried in stage-2 probes |
+| 06:59 | 2 | OPEN | 1 | - | builder: stage-2 revision by 07:40; finisher: copy UI into stage-2 static dir + real-API captures; examiner: stage-2 seal by 07:25 | |
