@@ -4,23 +4,43 @@ import { h, icon } from "../dom.js";
 import { hhmm, tableName, tablesPhrase } from "../format.js";
 
 const MAX_DOTS = 12;
+// Seat-columns per time row (search.css must match): one column per seat, at least two.
+const WIDE_COLUMNS = 8;
+const PHONE_COLUMNS = 6;
+const phoneQuery = window.matchMedia("(max-width: 560px)");
+const spanOf = (capacity, columns) => Math.min(Math.max(capacity, 2), columns);
 
 function sameSet(a, b) {
   return a.length === b.length && a.every((id) => b.includes(id));
 }
 
-// Every seating option to draw in each row: all single tables (fixture order), then
-// declared pairs whose combined seats fit the party (combinable order).
-export function seatingOptions(restaurant, party) {
+// Seat counts the server itself reported for this search (available_options carry capacity).
+function reportedCapacities(slots) {
+  const caps = new Map();
+  for (const slot of slots || []) {
+    for (const o of slot.available_options || []) {
+      if (Array.isArray(o.table_ids) && Number.isInteger(o.capacity)) caps.set([...o.table_ids].sort().join("+"), o.capacity);
+    }
+  }
+  return caps;
+}
+
+// Every seating option to draw in each row: all single tables (fixture order), then declared
+// pairs (combinable order) that are offered in any slot or whose combined seats fit the party.
+export function seatingOptions(restaurant, party, slots = []) {
+  const reported = reportedCapacities(slots);
+  const capOf = (ids, fallback) => reported.get([...ids].sort().join("+")) ?? fallback;
   const byId = new Map((restaurant.tables || []).map((t) => [t.id, t]));
-  const singles = (restaurant.tables || []).map((t) => ({ ids: [t.id], tables: [t], capacity: Number(t.capacity) || 0 }));
+  const singles = (restaurant.tables || []).map((t) => ({ ids: [t.id], tables: [t], capacity: capOf([t.id], Number(t.capacity) || 0) }));
   const pairs = [];
   for (const pair of restaurant.combinable || []) {
     if (!Array.isArray(pair) || pair.length !== 2) continue;
     const tables = pair.map((id) => byId.get(id));
     if (tables.some((t) => !t)) continue;
-    const capacity = tables.reduce((sum, t) => sum + (Number(t.capacity) || 0), 0);
-    if (capacity >= party) pairs.push({ ids: pair.slice(), tables, capacity });
+    const key = [...pair].sort().join("+");
+    const summed = pair.reduce((sum, id) => sum + capOf([id], Number(byId.get(id).capacity) || 0), 0);
+    const capacity = capOf(pair, summed);
+    if (reported.has(key) || capacity >= party) pairs.push({ ids: pair.slice(), tables, capacity });
   }
   return { singles, pairs, byId };
 }
@@ -47,10 +67,26 @@ function singleLabel(table) {
   return name === label ? [label] : [h("span", { class: "prefix" }, "Table "), label];
 }
 
-function statusOf(option, available, chosen, party) {
+// Why an option is unavailable. With the server's explanation (explain=true) a booked
+// member means "Taken" and a failed capacity rule means "Too small"; otherwise infer from seats.
+function reasonFor(option, slot, party) {
+  const rows = Array.isArray(slot.explain) ? slot.explain : null;
+  if (rows) {
+    const rules = option.ids.map((id) => rows.find((r) => r && r.table_id === id)).filter(Boolean);
+    const holds = (name) => rules.every((r) => (r.rules || []).every((x) => x.rule !== name || x.holds));
+    if (rules.length === option.ids.length) {
+      if (!holds("no_overlap")) return "taken";
+      if (option.ids.length === 1 && !holds("capacity")) return "small";
+      if (option.ids.length === 2) return "small";
+    }
+  }
+  return option.capacity < party ? "small" : "taken";
+}
+
+function statusOf(option, slot, available, chosen, party) {
   if (chosen) return { state: "chosen", word: "Chosen", icon: "check" };
   if (available) return { state: "open", word: "Open", icon: "open" };
-  if (option.capacity < party) return { state: "small", word: "Too small", icon: "small" };
+  if (reasonFor(option, slot, party) === "small") return { state: "small", word: "Too small", icon: "small" };
   return { state: "taken", word: "Taken", icon: "blocked" };
 }
 
@@ -59,7 +95,7 @@ function tile(option, slot, ctx) {
   const available = optionAvailable(option, slot);
   const key = optionKey(option.ids, slot.starts_at_local);
   const chosen = available && ctx.selectedKey === key;
-  const st = statusOf(option, available, chosen, ctx.party);
+  const st = statusOf(option, slot, available, chosen, ctx.party);
   const pair = option.ids.length === 2;
   const name = pair ? tablesPhrase(option.tables) : tableName(option.tables[0]);
 
@@ -78,7 +114,7 @@ function tile(option, slot, ctx) {
     "data-state": st.state,
     "aria-pressed": available ? (chosen ? "true" : "false") : null,
     "aria-label": `${name}${pair ? ", joined" : ""}, ${option.capacity} seats, ${time}: ${st.word}`,
-    style: { "--span": String(Math.min(Math.max(option.capacity, 2), 12)), "--span-sm": String(Math.min(Math.max(option.capacity, 2), 8)) },
+    style: { "--span": String(spanOf(option.capacity, WIDE_COLUMNS)), "--span-sm": String(spanOf(option.capacity, PHONE_COLUMNS)) },
     onclick: () => { if (available) ctx.onPick({ ids: option.ids, tables: option.tables, capacity: option.capacity, slot, key }); },
   },
     h("span", { class: "tile-top" }, label, h("span", { class: "count-text" }, `${option.capacity} seats`), seats(option.capacity, "seats seats-sm")),
@@ -92,7 +128,7 @@ function tile(option, slot, ctx) {
 // Packing order: first-fit decreasing into rows of `columns` seats, so no tile is stranded
 // alone on a line. Applied to the DOM itself, so visual, reading and tab order agree.
 function packOrder(options, columns) {
-  const spans = options.map((o) => Math.min(Math.max(o.capacity, 2), columns));
+  const spans = options.map((o) => spanOf(o.capacity, columns));
   const byWidth = spans.map((span, i) => ({ span, i })).sort((a, b) => b.span - a.span || a.i - b.i);
   const rows = [];
   for (const item of byWidth) {
@@ -107,9 +143,9 @@ function packOrder(options, columns) {
 }
 
 export function renderTimetable({ restaurant, slots, party, selectedKey, onPick }) {
-  const { singles, pairs } = seatingOptions(restaurant, party);
+  const { singles, pairs } = seatingOptions(restaurant, party, slots);
   const all = [...singles, ...pairs];
-  const order = packOrder(all, 8);
+  const order = packOrder(all, phoneQuery.matches ? PHONE_COLUMNS : WIDE_COLUMNS);
   const options = all.map((option, i) => ({ option, at: order[i] })).sort((a, b) => a.at - b.at).map((x) => x.option);
   const rows = slots.map((slot) => {
     const tiles = options.map((option) => tile(option, slot, { party, selectedKey, onPick }));
@@ -127,6 +163,12 @@ export function renderTimetable({ restaurant, slots, party, selectedKey, onPick 
       h("div", { class: "tiles" }, tiles.map((t) => t.button)));
   });
   return h("div", { class: "timetable", testid: "availability-grid" }, rows);
+}
+
+// Re-pack when the layout crosses the phone breakpoint.
+export function onLayoutChange(fn) {
+  phoneQuery.addEventListener("change", fn);
+  return () => phoneQuery.removeEventListener("change", fn);
 }
 
 export function legend() {

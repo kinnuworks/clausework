@@ -53,8 +53,8 @@
   .slot-time { flex-direction: row; align-items: baseline; gap: var(--s3); }
 }
 
-/* Seat grid: 12 seat-columns (8 on phones); a tile spans one column per seat it holds. */
-.tiles { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row; gap: var(--s2); min-width: 0; }
+/* Seat grid: 8 seat-columns (6 on phones); a tile spans one column per seat (min 2). */
+.tiles { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-auto-flow: row; gap: var(--s2); min-width: 0; }
 
 /* Seating tile: width reflects seats. */
 .tile {
@@ -85,10 +85,12 @@
 
 .tile[data-available="false"] {
   cursor: not-allowed; border-style: dashed; border-color: var(--line-strong);
-  background: repeating-linear-gradient(135deg, var(--surface) 0 6px, rgba(44, 66, 57, 0.55) 6px 12px);
-  color: var(--muted);
+  background: repeating-linear-gradient(135deg, var(--surface) 0 6px, rgba(44, 66, 57, 0.45) 6px 12px);
+  color: var(--text-dim);
 }
-.tile[data-available="false"] .tile-label { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: var(--faint); }
+.tile[data-available="false"] .tile-label,
+.tile[data-available="false"] .part { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: var(--muted); }
+.tile[data-available="false"] .count-text { color: var(--text-dim); }
 .tile[data-available="false"] .seat { background: transparent; box-shadow: inset 0 0 0 1.5px var(--faint); }
 
 .tile[data-state="chosen"] { background: var(--amber); color: var(--amber-ink); border: 2px solid var(--amber); box-shadow: 0 0 0 3px var(--amber-glow); }
@@ -134,7 +136,7 @@
    dots move beside the label and the status word may wrap. Word and icon always stay. */
 .tile > * { min-width: 0; }
 .seats-sm { display: none; }
-@container tile (max-width: 130px) {
+@container tile (max-width: 120px) {
   .tile-label .prefix, .count-text, .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .tile-foot .seats { display: none; }
   .tile-top .seats-sm { display: flex; flex-wrap: nowrap; }
@@ -144,7 +146,7 @@
 
 /* Phones: 8 seat-columns, compact tiles. */
 @media (max-width: 560px) {
-  .tiles { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+  .tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
   .tile { grid-column: span var(--span-sm, 2); min-height: 64px; padding: 6px 8px; }
   .tile-label { font-size: var(--fs-sm); }
   .tile-foot { flex-wrap: wrap; gap: 2px 6px; }

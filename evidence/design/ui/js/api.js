@@ -51,8 +51,9 @@ export async function request(method, path, { body, headers = {}, auth = false }
 export const api = {
   restaurants: () => request("GET", "/restaurants"),
   restaurant: (id) => request("GET", `/restaurants/${encodeURIComponent(id)}`),
+  policies: (id) => request("GET", `/restaurants/${encodeURIComponent(id)}/policies`),
   availability: (restaurantId, date, partySize) => {
-    const q = new URLSearchParams({ restaurant_id: restaurantId, date, party_size: String(partySize) });
+    const q = new URLSearchParams({ restaurant_id: restaurantId, date, party_size: String(partySize), explain: "true" });
     return request("GET", `/availability?${q}`);
   },
   signup: (body) => request("POST", "/auth/signup", { body }),

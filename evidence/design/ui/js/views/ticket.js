@@ -1,6 +1,6 @@
 // Confirmation ticket: the reference large, a copy control, and the booking in words.
 import { h, icon, announce } from "../dom.js";
-import { hhmm, longDate, tablesPhrase, guests } from "../format.js";
+import { longDate, tablesPhrase, guests, timeSpan } from "../format.js";
 
 export function reservationTables(reservation, restaurant) {
   const ids = Array.isArray(reservation.table_ids) && reservation.table_ids.length
@@ -51,7 +51,7 @@ export function renderTicket(reservation, restaurant) {
     h("div", { class: "ticket-tear", "aria-hidden": "true" }),
     h("div", { class: "ticket-details", testid: "confirmation-details" },
       h("span", { class: "d-name" }, restaurant.name),
-      h("span", { class: "d-when" }, `${longDate(local.slice(0, 10))} · ${hhmm(local)}`),
+      h("span", { class: "d-when" }, `${longDate(local.slice(0, 10))} · ${timeSpan(reservation)}`),
       h("span", { class: "d-tables", testid: "confirmation-tables" },
         `${tablesPhrase(tables)} · ${guests(reservation.party_size)}`)));
 }

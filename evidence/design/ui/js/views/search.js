@@ -4,8 +4,9 @@ import { h, icon, clear, notice, announce } from "../dom.js";
 import { api } from "../api.js";
 import { session } from "../session.js";
 import { longDate, guests, todayLocal, plainError } from "../format.js";
-import { renderTimetable, legend } from "./grid.js";
+import { renderTimetable, legend, onLayoutChange } from "./grid.js";
 import { createBooking } from "./booking.js";
+import { selectPolicy, seatedAs } from "../policy.js";
 
 const state = {
   restaurants: null, restaurantsFailed: false,
@@ -35,7 +36,8 @@ async function runSearch() {
   state.phase = "loading";
   state.pending = { name: nameOf(restaurantId), date, party };
   if (view) view.renderResults();
-  const [details, avail] = await Promise.all([api.restaurant(restaurantId), api.availability(restaurantId, date, party)]);
+  const [details, avail, policies] = await Promise.all([
+    api.restaurant(restaurantId), api.availability(restaurantId, date, party), api.policies(restaurantId)]);
   if (seq !== state.seq) return; // a newer search owns the screen
   if (details.kind !== "ok" || avail.kind !== "ok") {
     const failed = details.kind !== "ok" ? details : avail;
@@ -43,7 +45,10 @@ async function runSearch() {
     state.error = failed.kind === "lost" ? "We couldn't reach Tablekeeper. Check your connection and search again." : plainError(failed);
   } else {
     state.phase = "ready";
-    state.result = { restaurant: details.data, date, party, slots: (avail.data && avail.data.slots) || [] };
+    // Seat counts follow the policy in force on that date (the detail keeps the original fixture).
+    const published = policies.kind === "ok" && policies.data ? policies.data.policies : [];
+    const restaurant = seatedAs(details.data, selectPolicy(published, date));
+    state.result = { restaurant, date, party, slots: (avail.data && avail.data.slots) || [] };
     const open = state.result.slots.filter((s) => (s.available_table_ids || []).length || (s.available_options || []).length).length;
     announce(state.result.slots.length ? `${open} of ${state.result.slots.length} times have a table` : "No times that day");
   }
@@ -174,9 +179,10 @@ export function mountSearch(main) {
   view.renderResults();
   const onResize = () => positionPanel();
   window.addEventListener("resize", onResize);
+  const offLayout = onLayoutChange(() => view && view.renderGrid());
   const unsub = session.subscribe(() => { if (state.authNeeded && session.get()) { state.authNeeded = false; view.renderResults(); } });
   return () => {
-    view = null; unsub(); window.removeEventListener("resize", onResize);
+    view = null; unsub(); offLayout(); window.removeEventListener("resize", onResize);
     document.body.classList.remove("sheet-open");
   };
 }

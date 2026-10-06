@@ -2,7 +2,7 @@
 import { h, icon, notice, announce } from "../dom.js";
 import { api } from "../api.js";
 import { session } from "../session.js";
-import { hhmm, longDate, tablesPhrase, guests, plainError } from "../format.js";
+import { longDate, tablesPhrase, guests, plainError, timeSpan, cutoffPhrase } from "../format.js";
 import { reservationTables } from "./ticket.js";
 
 const restaurantCache = new Map();
@@ -53,7 +53,10 @@ export function mountLookup(main) {
           renderDetail(res, restaurant, text);
         }
       });
-      actions.append(cancelBtn, h("span", { class: "fine" }, "Free cancellation until the restaurant's cut-off before your time."));
+      const cutoff = cutoffPhrase(res.accepted_terms && res.accepted_terms.cancellation_cutoff_minutes);
+      actions.append(cancelBtn, h("span", { class: "fine" }, cutoff
+        ? `You can cancel online until ${cutoff} before your time.`
+        : "Free cancellation until the restaurant's cut-off before your time."));
     } else {
       actions.append(h("span", { class: "fine" }, "This booking is cancelled. The table has been released."));
     }
@@ -66,7 +69,7 @@ export function mountLookup(main) {
           h("span", { testid: "reservation-status" }, cancelled ? "cancelled" : "confirmed"))),
       h("dl", { class: "res-facts" },
         h("div", {}, h("dt", {}, "Restaurant"), h("dd", {}, restaurant.name)),
-        h("div", {}, h("dt", {}, "When"), h("dd", {}, h("span", { class: "time-big" }, hhmm(local)), h("br"), longDate(local.slice(0, 10)))),
+        h("div", {}, h("dt", {}, "When"), h("dd", {}, h("span", { class: "time-big" }, timeSpan(res)), h("br"), longDate(local.slice(0, 10)))),
         h("div", {}, h("dt", {}, "Seating"), h("dd", { testid: "reservation-tables" }, tablesPhrase(tables))),
         h("div", {}, h("dt", {}, "Party"), h("dd", {}, guests(res.party_size)))),
       actions);

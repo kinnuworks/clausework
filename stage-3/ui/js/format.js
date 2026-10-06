@@ -22,6 +22,22 @@ function dateParts(ymd) {
   return new Date(Date.UTC(y, (m || 1) - 1, d || 1));
 }
 
+// The booking's own local time span: "19:00–20:30" (end from the server's ends_at, which
+// carries the restaurant's offset, so its clock reading is local). Start alone if no end.
+export function timeSpan(reservation) {
+  const start = hhmm(reservation.starts_at_local);
+  const end = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(reservation.ends_at || "") ? reservation.ends_at.slice(11, 16) : "";
+  return end ? `${start}–${end}` : start;
+}
+
+// accepted_terms.cancellation_cutoff_minutes -> "2 hours" / "45 minutes" / "1 day"
+export function cutoffPhrase(minutes) {
+  if (!Number.isInteger(minutes) || minutes <= 0) return "";
+  if (minutes % 1440 === 0) return `${minutes / 1440} ${minutes === 1440 ? "day" : "days"}`;
+  if (minutes % 60 === 0) return `${minutes / 60} ${minutes === 60 ? "hour" : "hours"}`;
+  return `${minutes} minutes`;
+}
+
 // "2026-09-24" -> "Thursday 24 September 2026"
 export function longDate(ymd) {
   const date = dateParts(ymd);
