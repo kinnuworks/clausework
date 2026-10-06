@@ -89,11 +89,33 @@ function tile(option, slot, ctx) {
   return { button, available };
 }
 
+// Phone packing order: first-fit decreasing into rows of `columns` seats, so no tile is
+// stranded alone on a line when a better arrangement exists. Visual order only.
+function packOrder(options, columns) {
+  const spans = options.map((o) => Math.min(Math.max(o.capacity, 2), columns));
+  const byWidth = spans.map((span, i) => ({ span, i })).sort((a, b) => b.span - a.span || a.i - b.i);
+  const rows = [];
+  for (const item of byWidth) {
+    const row = rows.find((r) => r.free >= item.span);
+    if (row) { row.items.push(item.i); row.free -= item.span; } else rows.push({ free: columns - item.span, items: [item.i] });
+  }
+  rows.forEach((r) => r.items.sort((a, b) => a - b));
+  rows.sort((a, b) => a.items[0] - b.items[0]);
+  const order = new Array(options.length);
+  rows.flatMap((r) => r.items).forEach((index, position) => { order[index] = position; });
+  return order;
+}
+
 export function renderTimetable({ restaurant, slots, party, selectedKey, onPick }) {
   const { singles, pairs } = seatingOptions(restaurant, party);
   const options = [...singles, ...pairs];
+  const phoneOrder = packOrder(options, 8);
   const rows = slots.map((slot) => {
-    const tiles = options.map((option) => tile(option, slot, { party, selectedKey, onPick }));
+    const tiles = options.map((option, i) => {
+      const t = tile(option, slot, { party, selectedKey, onPick });
+      t.button.style.setProperty("--order-sm", String(phoneOrder[i]));
+      return t;
+    });
     const open = tiles.filter((t) => t.available).length;
     const chosen = selectedKey && selectedKey.endsWith(`@${slot.starts_at_local}`);
     const time = hhmm(slot.starts_at_local);

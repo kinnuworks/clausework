@@ -145,7 +145,7 @@
 /* Phones: 8 seat-columns, compact tiles. */
 @media (max-width: 560px) {
   .tiles { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
-  .tile { grid-column: span var(--span-sm, 2); min-height: 64px; padding: 6px 8px; }
+  .tile { grid-column: span var(--span-sm, 2); order: var(--order-sm, 0); min-height: 64px; padding: 6px 8px; }
   .tile-label { font-size: var(--fs-sm); }
   .tile-foot { flex-wrap: wrap; gap: 2px 6px; }
   .tile-status { white-space: normal; line-height: 1.15; }
