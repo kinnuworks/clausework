@@ -138,8 +138,11 @@
 .seats-sm { display: none; }
 @container tile (max-width: 120px) {
   .tile-label .prefix, .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  /* The seat count stays in words; the dots give way so nothing wraps. */
+  /* The seat count stays in words; the dots give way. If label and count don't fit on one
+     line, the count drops below the label whole — never clipped. */
   .tile-foot .seats { display: none; }
+  .tile-top { flex-wrap: wrap; column-gap: 6px; row-gap: 0; }
+  .tile-top .count-text { flex: none; white-space: nowrap; }
   .tile-status { white-space: normal; line-height: 1.15; }
   .tile-foot { justify-content: flex-start; }
 }
