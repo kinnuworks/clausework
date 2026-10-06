@@ -99,4 +99,7 @@
 .ticket-details .d-name { font-family: var(--font-display); font-size: var(--fs-md); font-weight: 700; }
 .ticket-details .d-when { color: var(--text); }
 .ticket-details .d-tables { color: var(--muted); }
+.ticket.is-cancelled { border-style: dashed; border-color: var(--refused); }
+.ticket.is-cancelled .ticket-top { color: var(--refused); }
+.ticket.is-cancelled .ticket-tear::before, .ticket.is-cancelled .ticket-tear::after { border-color: var(--refused); }
 .copy-state { font-size: var(--fs-xs); color: var(--success); min-height: 1em; }

@@ -81,6 +81,17 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
     labelSubmit();
   }
 
+  // A replay returns the original receipt, but seating may have changed since (a manager's
+  // replan, an amendment). Read the booking's current state from the server for the ticket;
+  // the reference never changes. If the read fails, the receipt stays as the server sent it.
+  async function refreshTicket(reference) {
+    const current = await api.reservation(reference);
+    if (current.kind !== "ok" || !current.data || state.status !== "success") return;
+    if (!state.confirmation || state.confirmation.reference !== reference) return;
+    state.confirmation = { ...state.confirmation, ...current.data, reference };
+    render();
+  }
+
   function refuse(text) {
     state.status = "refused"; state.error = text; state.confirmation = null;
     render();
@@ -107,6 +118,7 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
       state.status = "success"; state.confirmation = result.data;
       render();
       announce(`Booked. Reference ${result.data.reference}.`);
+      refreshTicket(result.data.reference);
     } else if (result.kind === "lost") {
       state.status = "uncertain"; state.confirmation = null;
       render();

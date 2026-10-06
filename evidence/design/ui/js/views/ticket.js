@@ -41,8 +41,9 @@ export function renderTicket(reservation, restaurant) {
     },
   }, icon("copy"), "Copy");
 
-  return h("article", { class: "ticket fade-in", testid: "confirmation", "aria-label": "Booking confirmed" },
-    h("div", { class: "ticket-top" }, icon("check"), "Booked · confirmed"),
+  const cancelled = reservation.status === "cancelled";
+  return h("article", { class: `ticket fade-in${cancelled ? " is-cancelled" : ""}`, testid: "confirmation", "aria-label": cancelled ? "Booking since cancelled" : "Booking confirmed" },
+    h("div", { class: "ticket-top" }, icon(cancelled ? "blocked" : "check"), cancelled ? "Booked · since cancelled" : "Booked · confirmed"),
     h("div", { class: "ticket-ref-wrap" },
       h("div", {},
         h("span", { class: "ticket-ref-label" }, "Your reference"),
