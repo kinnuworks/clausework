@@ -46,3 +46,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:02 | 2 | builder status | 1 | c6f3a5a | finisher: copy UI into stage-2/ui/; builder: final report after UI | Isolated: S1 120/120, S2 25/25, claimed stage 2 (UI empty yet) |
 | 07:04 | 2 | inspect | 1 | c7275b7 | inspector: verdict-1 by 07:40; examiner: reveal + audit by 07:40 | Builder: isolated S1 120/120, S2 25/25, claimed 2. 5 doubts forwarded |
 | 07:06 | 2 | revision amended | 1 | fbae59c | inspector: verdict on fbae59c | Finisher polish beec94c (stage-2/ui CSS only) landed after builder report; real-API captures fbae59c; behave 31/31, upgrade 9/9 |
+| 07:07 | 3 (look-ahead) | seal in | - | 4f3a492 | - | 69 rows, 101 probes, seal c19fc8cf…46a6; needs TK_S1_URL + TK_S2_URL (stage-2-frozen) |
