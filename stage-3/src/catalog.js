@@ -58,6 +58,7 @@ function parseRestaurant(raw, index) {
     opening_hours: hours.map((h, i) => parseHours(h, `${where}.opening_hours[${i}]`)),
     tables,
     combinable,
+    manager_user_ids: parseManagers(raw.manager_user_ids, where),
   };
 }
 
@@ -78,6 +79,12 @@ function parseCombinable(raw, tables, where) {
     seen.add(key);
   });
   return pairs;
+}
+
+function parseManagers(raw, where) {
+  if (raw === undefined) return [];
+  need(Array.isArray(raw) && raw.every(isId), `${where}.manager_user_ids must be user ids`);
+  return [...new Set(raw)];
 }
 
 const pairKey = (pair) => JSON.stringify([...pair].sort());

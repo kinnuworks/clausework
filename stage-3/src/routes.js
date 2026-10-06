@@ -5,9 +5,14 @@
 const { malformed, invalid } = require('./errors');
 const { isObject } = require('./fields');
 const S = require('./store');
+const P = require('./persist');
+const { ApiError } = require('./errors');
 const auth = require('./auth');
 const browse = require('./browse');
 const R = require('./reservations');
+const { moveBatch } = require('./moves');
+const series = require('./series');
+const policies = require('./policies');
 const { readKey, once } = require('./idempotency');
 const { formatUtc } = require('./time');
 const screens = require('./screens');
@@ -34,17 +39,29 @@ const authed = (fn) => (ctx) => {
   return fn(store, auth.authenticate(store, ctx.req), ctx);
 };
 
+// Owner-only reads: an unauthenticated caller gets the same 404 as a stranger.
+const ownerOnly = (fn) => (ctx) => {
+  const store = S.getStore();
+  let user = null;
+  try {
+    user = auth.authenticate(store, ctx.req);
+  } catch (err) {
+    if (!(err instanceof ApiError)) throw err;
+  }
+  return fn(store, user, ctx);
+};
+
 // Authenticated, idempotent write: auth, key, body, then receipt lookup —
-// all before any field validation.
+// all before any field validation or resource check.
 const idempotent = (fn) => authed((store, user, ctx) => {
   const key = readKey(ctx.req);
   const body = jsonObject(ctx);
   const request = { user, method: ctx.method, path: ctx.path, key, body };
-  return once(store, request, () => fn(store, user, body, now()));
+  return once(store, request, () => fn(store, user, body, now(), ...ctx.params));
 });
 
 async function reset(ctx) {
-  S.replaceStore(await S.storeFromFixture(jsonObject(ctx)));
+  S.replaceStore(await P.storeFromFixture(jsonObject(ctx)));
   return { status: 204 };
 }
 
@@ -53,7 +70,7 @@ function importState(ctx) {
   if (!('track' in doc) || !('format_version' in doc) || !('state' in doc)) {
     throw invalid('track, format_version and state are required');
   }
-  S.replaceStore(S.storeFromExport(doc));
+  S.replaceStore(P.storeFromExport(doc));
   return { status: 204 };
 }
 
@@ -62,21 +79,28 @@ const routes = [
   ['GET', /^\/static\/(.+)$/, (ctx) => screens.staticFile(ctx.params[0])],
   ['GET', /^\/health$/, () => ({ status: 200, body: { status: 'ok' } })],
   ['POST', /^\/_test\/reset$/, reset],
-  ['GET', /^\/_test\/export$/, () => ({ status: 200, body: S.exportStore(S.getStore()) })],
+  ['GET', /^\/_test\/export$/, () => ({ status: 200, body: P.exportStore(S.getStore()) })],
   ['POST', /^\/_test\/import$/, importState],
   ['POST', /^\/auth\/signup$/, (ctx) => auth.signup(jsonObject(ctx))],
   ['POST', /^\/auth\/login$/, (ctx) => auth.login(jsonObject(ctx))],
   ['GET', /^\/restaurants$/, () => browse.listRestaurants(S.getStore())],
   ['GET', /^\/restaurants\/([^/]+)$/, (ctx) => browse.showRestaurant(S.getStore(), ctx.params[0])],
+  ['GET', /^\/restaurants\/([^/]+)\/policies$/, (ctx) => policies.listPolicies(S.getStore(), ctx.params[0])],
+  ['POST', /^\/restaurants\/([^/]+)\/policies$/,
+    idempotent((store, user, body, _now, restaurantId) => policies.publish(store, user, body, restaurantId))],
   ['GET', /^\/availability$/, (ctx) => browse.availability(S.getStore(), ctx.query)],
   ['POST', /^\/reservations$/, idempotent(R.create)],
   ['GET', /^\/reservations$/, authed((store, user) => R.list(store, user))],
   ['GET', /^\/reservations\/([^/]+)$/, authed((store, user, ctx) => R.show(store, user, ctx.params[0]))],
+  ['GET', /^\/reservations\/([^/]+)\/history$/, ownerOnly((store, user, ctx) => R.history(store, user, ctx.params[0]))],
+  ['GET', /^\/reservations\/([^/]+)\/decision$/, ownerOnly((store, user, ctx) => R.decision(store, user, ctx.params[0]))],
   ['PATCH', /^\/reservations\/([^/]+)$/,
     authed((store, user, ctx) => R.amend(store, user, ctx.params[0], jsonObject(ctx), now()))],
   ['POST', /^\/reservations\/([^/]+)\/cancel$/,
     authed((store, user, ctx) => R.cancel(store, user, ctx.params[0], now()))],
-  ['POST', /^\/reservation-moves$/, idempotent(R.moveBatch)],
+  ['POST', /^\/reservation-moves$/, idempotent(moveBatch)],
+  ['POST', /^\/series$/, idempotent(series.create)],
+  ['GET', /^\/series\/([^/]+)$/, ownerOnly((store, user, ctx) => series.show(store, user, ctx.params[0]))],
 ];
 
 // -> { handler, params } or null.

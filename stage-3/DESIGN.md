@@ -1,4 +1,4 @@
-# Design note — tablekeeper stage 2
+# Design note — tablekeeper stage 3
 
 ## What was chosen
 
@@ -49,6 +49,34 @@
   `/static/<path>` serves `ui/<path>` and cannot escape `ui/`. The `ui/`
   directory is the finisher's; everything else is the builder's.
 
+## Stage 3 additions
+
+- **The same single write path decides everything a write touches.** A
+  create, amendment, cancel, batch move, series adoption or policy
+  publication plans its complete result first (new records, history
+  entries, revisions, terms, series flags) and commits it in one
+  synchronous step. So revisions, history, series revisions, exception
+  flags, policy versions and the internal restaurant revision change
+  together with the write or not at all, and a failure or a replay changes
+  none of them.
+- **Policies** (`src/policy.js`): policy 0 is derived from the fixture;
+  published policies are immutable and versioned per restaurant. One
+  function selects the policy for a local date (greatest `effective_from`
+  not after it, ties to the greatest version).
+- **Accepted terms live on the booking.** A booking stores the snapshot of
+  the policy it was accepted under; its end time, cutoff and capacity
+  checks come from that snapshot, so later publications never change it.
+- **One rule set.** Availability, `explain=true` and booking validation use
+  the same capacity / no-overlap code under the selected policy, so
+  `available_table_ids`, explanations and booking outcomes agree.
+- **History** (`src/history.js`): one function computes the changed fields
+  (table, then `starts_at_local`, then `party_size`); an empty result is a
+  no-op, which records nothing and keeps the revision.
+- **Series** (`src/series.js`): every occurrence is planned under its own
+  date's policy and checked in index order before any is stored.
+- **Older exports**: stage-1/2 reservations import at revision 1 under
+  policy 0 with one `created` history entry, exactly like seeded bookings.
+
 ## Other decisions
 
 - Precedence for writes: authentication (401), then `Idempotency-Key`
@@ -61,6 +89,12 @@
   occupancy (409 `table_unavailable`).
 - Local times resolve to the first occurrence on fall-back nights; skipped
   times are rejected and never listed. Durations are absolute time.
+- PATCH order: 404 → wrong JSON types (400) → `expected_revision`
+  (422 invalid, 409 `stale_revision`) → cancelled → accepted cutoff →
+  field values → tables; a no-op stops there; a real change is validated
+  under the resulting date's policy (time rules, capacity) then occupancy.
+- Policy publication order: 401 → key → body → receipt → 404 → 403 → 422.
+- History and decision answer 404 to anyone but the owner, signed in or not.
 - Export format: `{track, format_version: 1, state}` where `state` lists
   every record with its original ids, references, timestamps, password hashes,
   token digests and idempotency receipts (with the original response bodies).
