@@ -17,12 +17,16 @@
 .lookup-result { margin-top: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
 
 .res-card {
+  container-type: inline-size;
   border-radius: var(--r-panel); border: 1px solid var(--line-strong); background: var(--raised);
   padding: var(--s5); display: grid; gap: var(--s4);
 }
 .res-card.is-cancelled { border-style: dashed; background: var(--surface); }
 .res-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); flex-wrap: wrap; }
-.res-ref { font-family: var(--font-display); font-size: var(--fs-xl); font-weight: 800; letter-spacing: 0.04em; line-height: 1; overflow-wrap: anywhere; }
+.res-ref {
+  font-family: var(--font-display); font-weight: 800; letter-spacing: 0.04em; line-height: 1; white-space: nowrap;
+  font-size: min(var(--fs-xl), calc((100cqi - 3.5rem) / (var(--ref-len, 8) * 0.72)));
+}
 .res-card.is-cancelled .res-ref { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--muted); }
 .status-pill {
   display: inline-flex; align-items: center; gap: var(--s2);

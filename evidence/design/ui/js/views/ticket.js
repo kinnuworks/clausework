@@ -46,7 +46,7 @@ export function renderTicket(reservation, restaurant) {
     h("div", { class: "ticket-ref-wrap" },
       h("div", {},
         h("span", { class: "ticket-ref-label" }, "Your reference"),
-        h("span", { class: "ticket-ref", testid: "confirmation-reference" }, reservation.reference)),
+        h("span", { class: "ticket-ref", testid: "confirmation-reference", style: { "--ref-len": String(String(reservation.reference).length) } }, reservation.reference)),
       h("div", {}, copy, stateLine)),
     h("div", { class: "ticket-tear", "aria-hidden": "true" }),
     h("div", { class: "ticket-details", testid: "confirmation-details" },

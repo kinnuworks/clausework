@@ -70,6 +70,7 @@
 
 /* Ticket */
 .ticket {
+  container-type: inline-size;
   position: relative; border-radius: var(--r-panel);
   background: linear-gradient(180deg, #1f3a30, #182b24);
   border: 1px solid var(--success); color: var(--text);
@@ -81,7 +82,9 @@
 .ticket-ref {
   font-family: var(--font-display); font-size: var(--fs-ref); font-weight: 800; line-height: 0.95;
   letter-spacing: 0.04em; font-variant-numeric: tabular-nums; color: var(--text);
-  font-variation-settings: "opsz" 96, "wdth" 90; overflow-wrap: anywhere;
+  font-variation-settings: "opsz" 96, "wdth" 90; white-space: nowrap;
+  /* References run 6–12 characters: shrink to keep the whole reference on one line. */
+  font-size: min(var(--fs-ref), calc((100cqi - 3rem) / (var(--ref-len, 8) * 0.68)));
 }
 .ticket-tear {
   position: relative; height: 0; border-top: 2px dashed var(--line-strong); margin: 0 var(--s4);

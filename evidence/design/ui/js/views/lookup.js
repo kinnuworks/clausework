@@ -63,7 +63,7 @@ export function mountLookup(main) {
 
     const card = h("article", { class: `res-card fade-in${cancelled ? " is-cancelled" : ""}`, testid: "reservation-detail" },
       h("div", { class: "res-top" },
-        h("div", {}, h("p", { class: "eyebrow" }, "Reference"), h("p", { class: "res-ref" }, res.reference)),
+        h("div", {}, h("p", { class: "eyebrow" }, "Reference"), h("p", { class: "res-ref", style: { "--ref-len": String(String(res.reference).length) } }, res.reference)),
         h("span", { class: `status-pill ${cancelled ? "cancelled" : "confirmed"}` },
           icon(cancelled ? "blocked" : "check"),
           h("span", { testid: "reservation-status" }, cancelled ? "cancelled" : "confirmed"))),
