@@ -65,3 +65,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:40 | 4 | verdict | 1 | 4c5ea79 | - | ACCEPT. But finisher committed a3c4b86 (stage-4/ui booking.js, 'Seating changed' note) after the inspected revision -> HEAD stage-4 != accepted. Decision: one last finisher commit (O1 clip fix) by 07:50, then round 2 on it; else revert stage-4/ui to 4c5ea79 by a new commit |
 | 07:41 | 4 | fix commit | 2 | 40b4083 | inspector: round 2 verdict by 08:05 | Finisher final stage-4/ui (a3c4b86 'Seating changed' + O1 clip fix). Round-1 detail: optimiser 188/188 vs brute force, probes 118/118 (seal v2 d50cd243) |
 | 07:46 | 4 | FROZEN | 2 | 40b4083 (tag stage-4-frozen) | - | ACCEPT round 2. Rounds used 2; time 07:30-07:46. Probe audit 5/5 (supplied 0/5) |
+| 07:47 | - | final report | - | 40b4083 | - | Final isolated run: claimed stage 4. Report posted; CLOSED |
