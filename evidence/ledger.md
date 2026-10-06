@@ -33,3 +33,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 06:47 | 2 (look-ahead) | finisher brief in | - | 710c5ff | finisher: UI by ~07:30 | Single index.html for 4 routes, assets under /static/ |
 | 06:48 | 1 | seal in | 1 | 0166619 | builder: revision report | 96 clauses, 53 probes, seal 9901cc05…b993 |
 | 06:52 | 1 | inspect | 1 | 85374cb | inspector: verdict-1 by 07:10; examiner: reveal + probe audit by 07:10 | Builder self-check isolated 120/120, claimed stage 1. 8 doubts forwarded to inspector |
+| 06:55 | 1 | verdict | 1 | 85374cb | builder: fix F1 (5xx on deeply nested JSON, idempotency canonical recursion) → inspector round 2 | REJECT. Supplied 120/120, probes 53/53, probe audit 5/5 planted caught |
