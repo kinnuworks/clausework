@@ -5,7 +5,7 @@ import { h, icon, notice, announce } from "../dom.js";
 import { api, newKey } from "../api.js";
 import { session } from "../session.js";
 import { hhmm, shortDate, longDate, tablesPhrase, plainError, seatCount } from "../format.js";
-import { renderTicket } from "./ticket.js";
+import { renderTicket, reservationTables } from "./ticket.js";
 
 export function createBooking({ restaurant, date, pick, party, onConflict, onClose }) {
   const state = { attempt: null, status: "idle", confirmation: null, error: null };
@@ -73,6 +73,7 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
     }
     ticketSlot.replaceChildren();
     if (state.confirmation && (state.status === "success" || state.status === "sending")) {
+      if (state.seatingNote) ticketSlot.append(notice("info", "Seating changed", state.seatingNote));
       ticketSlot.append(renderTicket(state.confirmation, restaurant));
       if (state.status === "success") panel.scrollTop = 0;
     }
@@ -89,7 +90,11 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
     if (current.kind !== "ok" || !current.data || state.status !== "success") return;
     if (!state.confirmation || state.confirmation.reference !== reference) return;
     state.confirmation = { ...state.confirmation, ...current.data, reference };
+    const now = reservationTables(state.confirmation, restaurant).map((t) => t.id);
+    const moved = now.length > 0 && (now.length !== pick.ids.length || now.some((id) => !pick.ids.includes(id)));
+    state.seatingNote = moved ? `The restaurant has since moved this booking to ${tablesPhrase(reservationTables(state.confirmation, restaurant))}.` : null;
     render();
+    if (moved) onConflict();   // refresh the times so the grid shows today's seating
   }
 
   function refuse(text) {
@@ -109,6 +114,7 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
     if (!state.attempt || state.attempt.text !== text) {
       state.attempt = { key: newKey(), text };
       state.confirmation = null;
+      state.seatingNote = null;
     }
     const attempt = state.attempt;
     state.status = "sending"; state.error = null;
