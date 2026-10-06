@@ -1,0 +1,102 @@
+/* Booking panel: sticky side column on wide screens, bottom sheet on narrow. Ticket. */
+.booking-panel {
+  background: var(--surface); border: 1px solid var(--line-strong);
+  border-radius: var(--r-panel); padding: var(--s5);
+  display: flex; flex-direction: column; gap: var(--s4);
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.7);
+}
+.panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); }
+.panel-head h2 { font-size: var(--fs-lg); }
+.panel-close {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid var(--line-strong); background: transparent; color: var(--text); cursor: pointer;
+}
+.panel-close:hover { background: var(--raised); }
+
+@media (min-width: 960px) {
+  .panel-column { position: relative; align-self: stretch; }
+  /* Spacer, not margin: lets the sticky panel rise above its start when scrolling back up. */
+  .panel-column::before { content: ""; display: block; height: var(--panel-offset, 0px); }
+  .booking-panel {
+    position: sticky; top: calc(72px + var(--s4)); bottom: var(--s4);
+    max-height: calc(100vh - 72px - var(--s6)); overflow-y: auto;
+    animation: panel-in var(--dur) var(--ease);
+  }
+  .panel-grip { display: none; }
+}
+@keyframes panel-in { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 959.98px) {
+  .booking-panel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    max-height: 46vh; overflow-y: auto; overscroll-behavior: contain;
+    border-radius: 20px 20px 0 0; border-bottom: 0;
+    padding: var(--s3) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom));
+    box-shadow: 0 -18px 40px -10px rgba(0, 0, 0, 0.75);
+    animation: sheet-in var(--dur) var(--ease);
+  }
+  .booking-panel.collapsed .panel-body { display: none; }
+  .panel-grip { align-self: center; width: 44px; height: 5px; border-radius: 3px; background: var(--line-strong); margin-bottom: var(--s1); }
+  body.sheet-open .page { padding-bottom: 50vh; }
+  .booking-panel { gap: var(--s3); }
+  .panel-head h2 { font-size: var(--fs-md); }
+  .panel-head .eyebrow { display: none; }
+  .panel-close { width: 36px; height: 36px; }
+  .summary { padding: var(--s3); gap: 2px; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--s3); align-items: center; }
+  .summary .summary-time { grid-row: span 2; font-size: 1.75rem; }
+  .panel-body { gap: var(--s3); }
+  .booking-form { gap: var(--s3); }
+  .ticket-ref-wrap, .ticket-details { padding-left: var(--s4); padding-right: var(--s4); }
+}
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.panel-body { display: flex; flex-direction: column; gap: var(--s4); }
+
+.summary {
+  display: grid; gap: var(--s2); padding: var(--s4);
+  border-radius: var(--r-tile); background: var(--raised); border: 1px solid var(--line);
+}
+.summary .summary-time {
+  font-family: var(--font-display); font-size: var(--fs-time); font-weight: 700;
+  font-variant-numeric: tabular-nums; line-height: 1; color: var(--amber);
+}
+.summary .summary-line { color: var(--text); font-weight: 600; }
+.summary .summary-meta { color: var(--muted); font-size: var(--fs-sm); }
+
+.booking-form { display: flex; flex-direction: column; gap: var(--s4); }
+.booking-form .row { display: grid; grid-template-columns: minmax(0, 8rem) minmax(0, 1fr); gap: var(--s3); align-items: end; }
+.booking-form .btn { width: 100%; }
+.booking-form .fine { font-size: var(--fs-xs); color: var(--faint); }
+
+/* Ticket */
+.ticket {
+  container-type: inline-size;
+  position: relative; border-radius: var(--r-panel);
+  background: linear-gradient(180deg, #1f3a30, #182b24);
+  border: 1px solid var(--success); color: var(--text);
+  overflow: hidden;
+}
+.ticket-top { padding: var(--s4) var(--s5) var(--s3); display: flex; align-items: center; gap: var(--s2); color: var(--success); font-weight: 600; font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: 0.12em; }
+.ticket-ref-wrap { padding: 0 var(--s5) var(--s4); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; }
+.ticket-ref-label { display: block; font-size: var(--fs-xs); color: var(--muted); margin-bottom: var(--s1); }
+.ticket-ref {
+  font-family: var(--font-display); font-size: var(--fs-ref); font-weight: 800; line-height: 0.95;
+  letter-spacing: 0.04em; font-variant-numeric: tabular-nums; color: var(--text);
+  font-variation-settings: "opsz" 96, "wdth" 90; white-space: nowrap;
+  /* References run 6–12 characters: shrink to keep the whole reference on one line. */
+  font-size: min(var(--fs-ref), calc((100cqi - 3rem) / (var(--ref-len, 8) * 0.68)));
+}
+.ticket-tear {
+  position: relative; height: 0; border-top: 2px dashed var(--line-strong); margin: 0 var(--s4);
+}
+.ticket-tear::before, .ticket-tear::after {
+  content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--success);
+}
+.ticket-tear::before { left: calc(var(--s4) * -1 - 12px); }
+.ticket-tear::after { right: calc(var(--s4) * -1 - 12px); }
+.ticket-details { padding: var(--s4) var(--s5) var(--s5); display: grid; gap: var(--s1); font-size: var(--fs-sm); }
+.ticket-details .d-name { font-family: var(--font-display); font-size: var(--fs-md); font-weight: 700; }
+.ticket-details .d-when { color: var(--text); }
+.ticket-details .d-tables { color: var(--muted); }
+.copy-state { font-size: var(--fs-xs); color: var(--success); min-height: 1em; }

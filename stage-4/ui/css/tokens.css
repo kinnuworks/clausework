@@ -1,0 +1,84 @@
+/* Evening Service — design tokens. Defined once; every other sheet uses these. */
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/static/fonts/BricolageGrotesque.woff2") format("woff2");
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/static/fonts/InstrumentSans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  /* colour */
+  --ink: #0E1A16;
+  --surface: #15241F;
+  --raised: #1C2F28;
+  --raised-hi: #233a32;
+  --line: #2C4239;
+  --line-strong: #5C7A6E;
+  --text: #F3ECDF;
+  --text-dim: #DAD3C4;
+  --muted: #B8B09F;
+  --faint: #8E9A92;
+  --amber: #F4B04A;
+  --amber-soft: rgba(244, 176, 74, 0.14);
+  --amber-glow: rgba(244, 176, 74, 0.32);
+  --amber-ink: #1B1206;
+  --refused: #FF9B85;
+  --refused-soft: rgba(255, 155, 133, 0.10);
+  --uncertain: #A9CBEB;
+  --uncertain-soft: rgba(169, 203, 235, 0.10);
+  --success: #9ED9B0;
+  --success-soft: rgba(158, 217, 176, 0.10);
+
+  /* type */
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-text: "Instrument Sans", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.5rem;
+  --fs-time: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  --fs-xl: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  --fs-ref: clamp(2.5rem, 1.6rem + 4vw, 4rem);
+
+  /* space (4-pt) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  /* shape */
+  --r-tile: 10px;
+  --r-control: 8px;
+  --r-panel: 16px;
+  --r-pill: 999px;
+
+  /* motion */
+  --dur: 140ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* layout */
+  --page-max: 1240px;
+  --panel-w: 380px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; }
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
