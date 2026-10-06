@@ -4,7 +4,7 @@
 import { h, icon, notice, announce } from "../dom.js";
 import { api, newKey } from "../api.js";
 import { session } from "../session.js";
-import { hhmm, shortDate, longDate, tablesPhrase, plainError } from "../format.js";
+import { hhmm, shortDate, longDate, tablesPhrase, plainError, seatCount } from "../format.js";
 import { renderTicket } from "./ticket.js";
 
 export function createBooking({ restaurant, date, pick, party, onConflict, onClose }) {
@@ -24,7 +24,7 @@ export function createBooking({ restaurant, date, pick, party, onConflict, onClo
   const form = h("form", { class: "booking-form", testid: "booking-form", novalidate: true },
     h("div", { class: "summary", testid: "booking-summary" },
       h("span", { class: "summary-time" }, time),
-      h("span", { class: "summary-line" }, `${tablesText} · ${pick.capacity} seats`),
+      h("span", { class: "summary-line" }, `${tablesText} · ${seatCount(pick.capacity)}`),
       h("span", { class: "summary-meta" }, `${restaurant.name} · ${shortDate(date)} · ${time}`)),
     h("div", { class: "row" },
       h("div", { class: "field" }, h("label", { for: "booking-party" }, "Party size"), partyInput),

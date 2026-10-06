@@ -58,6 +58,10 @@ export function todayLocal() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+export function seatCount(n) {
+  return `${n} ${Number(n) === 1 ? "seat" : "seats"}`;
+}
+
 export function guests(n) {
   return `${n} ${Number(n) === 1 ? "guest" : "guests"}`;
 }
