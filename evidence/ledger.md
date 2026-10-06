@@ -62,3 +62,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:33 | 4 | inspect | 1 | 4c5ea79 (builder 9334ea9 + finisher ui) | inspector: verdict by 08:00; examiner: reveal + audit by 08:05 | Builder isolated S1 120/120, S2 25/25, S3 7/7, S4 6/6, claimed 4. Seal 6c23855 2803a2c6…797c |
 | 07:34 | 3 | probe audit | - | - | - | Stage-3 probes 5/5 planted caught, supplied 1/5 |
 | 07:34 | 3/4 | ruling | - | - | - | Examiner: readings (a)-(e),(g) agree; (f) restaurant revision +1 per successful non-no-op op (adoption once, batch once), not on no-op/failure/replay. Stage 3 internal only; checked in stage-4 inspection |
+| 07:40 | 4 | verdict | 1 | 4c5ea79 | - | ACCEPT. But finisher committed a3c4b86 (stage-4/ui booking.js, 'Seating changed' note) after the inspected revision -> HEAD stage-4 != accepted. Decision: one last finisher commit (O1 clip fix) by 07:50, then round 2 on it; else revert stage-4/ui to 4c5ea79 by a new commit |
