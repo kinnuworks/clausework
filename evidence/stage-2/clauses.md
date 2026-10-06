@@ -2,6 +2,7 @@
 
 Source: `tablekeeper/spec/stage-2.md`. stage-1.md still applies in full. Written by examiner from the specification alone.
 Families: as in the stage-1 register (BEH, ERR, ORD, AON, SIM, REP, TIME, LIM, COMPAT, BEST, PRES).
+Compatibility probe export source: tag `stage-1-frozen` (fa79f76) run as TK_S1_URL.
 Probe files: `test_s2_api.py`, `test_s2_ui.py`, `test_s2_compat.py`. The stage-1 probe files are carried unchanged.
 
 ## Carried forward from stage 1 (apply to every new entry point)
@@ -13,7 +14,7 @@ Probe files: `test_s2_api.py`, `test_s2_ui.py`, `test_s2_compat.py`. The stage-1
 | S2-C3 | S1-56/60/69: other people's bookings give 404 | PATCH with table_ids on a foreign reference gives 404 | test_patch_table_ids |
 | S2-C4 | S1-66/90: a failed write changes nothing | PATCH and moves with table_ids: the record and both tables stay unchanged after a 422 or 409 | test_patch_table_ids, test_moves_with_table_ids |
 | S2-C5 | S1-19/96, plus stage-2's "Concurrent requests must produce the same results as executing them one at a time in some order" | bursts mixing pairs and singles on shared tables: the winners are pairwise disjoint, and every 409 is explained by a winner | test_combo_concurrency |
-| S2-C6 | S1-05 "Unknown fields … are ignored, never an error" plus S1-19 "must not produce 5xx" (inspector finding F1) | a 512-deep nested array in an ignored field: POST gives 201, moves 201, PATCH 200, signup 201. A 100000-deep body on POST, moves, PATCH, signup, login and import: always < 500, and any 4xx carries the error body. RULING: depth 512 is valid JSON and must be ignored; for extreme depth only "no 5xx, error body" is required | test_f1_deeply_nested_ignored_field |
+| S2-C6 | S1-05 "Unknown fields … are ignored, never an error" plus S1-19 "must not produce 5xx" (inspector finding F1) | a 512-deep nested array in an ignored field: POST gives 201, moves 201, PATCH 200, signup 201. A 100000-deep body on POST, moves, PATCH, signup, login and import: always < 500, and any 4xx carries the error body. RULING: depth 512 is valid JSON and must be ignored; for extreme depth only "no 5xx, error body" is required. F1 regression (lead 07:01): a depth-3000 unknown field on POST /reservations and POST /reservation-moves gives a status < 500, and any 4xx carries the error body | test_f1_deeply_nested_ignored_field, test_f1_regression_depth_3000 |
 | S2-C7 | S1-97 (ruling): moves precedence by input order | [own cancelled, unknown] gives 409 reservation_cancelled; [unknown, own cancelled] gives 404; cutoff comes before combination errors | test_ruling_s1_97_moves_precedence |
 | S2-C8 | all stage-1 clauses S1-01..S1-96 | the stage-1 probe files run unchanged against stage 2 | test_basics … test_reservations |
 
