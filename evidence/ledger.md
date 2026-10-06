@@ -31,3 +31,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 06:42 | 1 | orders sent | 1 | 447a0a5 | builder: revision by 07:05; examiner: clauses+seal by 07:00 | Full spec pasted in 3 parts each |
 | 06:44 | 2 (look-ahead) | finisher order | - | - | finisher: design brief by 07:05, static UI in evidence/design/ui/ by ~07:30 | Stage 1 has no surface; finisher builds stage-2 UI outside stage folders |
 | 06:47 | 2 (look-ahead) | finisher brief in | - | 710c5ff | finisher: UI by ~07:30 | Single index.html for 4 routes, assets under /static/ |
+| 06:48 | 1 | seal in | 1 | 0166619 | builder: revision report | 96 clauses, 53 probes, seal 9901cc05…b993 |
