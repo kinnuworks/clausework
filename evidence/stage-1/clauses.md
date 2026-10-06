@@ -167,3 +167,9 @@ Probe file per clause in brackets.
 S1-07, S1-09, S1-15, S1-36, S1-39, S1-43, S1-61, S1-81, S1-84, S1-88 — reasons inline above.
 Not probed because the text orders nothing: precedence between different POST /reservations
 failures on one request (e.g. off-grid + over-capacity), the exact cutoff boundary instant.
+
+## Rulings added after the seal
+
+| id | quoted text | family | ruling |
+|---|---|---|---|
+| S1-97 | §11: "Every booking must belong to the caller and the same restaurant. Unknown/another owner's reference gives 404 not_found; different restaurants give 422 validation_failed." … "Non-occupancy errors use ordinary amendment codes and take precedence in input order, with cutoff errors preceding other changes for that booking." | ORD, RULING | Requested by lead at 06:55. Two phases. (1) Whole-body shape: `moves` is 1..8 objects with distinct string references, else 422. (2) Items in input order. The first item with any non-occupancy error decides the response. Within one item the order is: unknown or foreign reference 404, then restaurant differs from the batch's 422, then cancelled 409 `reservation_cancelled`, then cutoff 409 `cutoff_passed`, then the ordinary PATCH field codes. `table_unavailable` is decided only after every item passes. So [own cancelled booking, unknown reference] gives 409 `reservation_cancelled`, and [unknown reference, own cancelled booking] gives 404. Why: a 404 on a reference is the ordinary amendment code PATCH returns, so it is a non-occupancy error, and the text orders all non-occupancy errors by input position. It sets no batch-wide pass that runs first. |
