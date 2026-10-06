@@ -13,6 +13,8 @@ const R = require('./reservations');
 const { moveBatch } = require('./moves');
 const series = require('./series');
 const policies = require('./policies');
+const replans = require('./replans');
+const seriesAmend = require('./series-amend');
 const { readKey, once } = require('./idempotency');
 const { formatUtc } = require('./time');
 const screens = require('./screens');
@@ -100,6 +102,10 @@ const routes = [
     authed((store, user, ctx) => R.cancel(store, user, ctx.params[0], now()))],
   ['POST', /^\/reservation-moves$/, idempotent(moveBatch)],
   ['POST', /^\/series$/, idempotent(series.create)],
+  ['POST', /^\/restaurants\/([^/]+)\/replans$/, idempotent(replans.preview)],
+  ['POST', /^\/restaurants\/([^/]+)\/replans\/([^/]+)\/apply$/, idempotent(replans.apply)],
+  ['POST', /^\/series\/([^/]+)\/amend$/,
+    idempotent((store, user, body, now, seriesId) => seriesAmend.amend(store, user, body, now, seriesId, series.view))],
   ['GET', /^\/series\/([^/]+)$/, ownerOnly((store, user, ctx) => series.show(store, user, ctx.params[0]))],
 ];
 

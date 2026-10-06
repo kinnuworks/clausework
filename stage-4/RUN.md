@@ -1,9 +1,9 @@
-# Running tablekeeper (stage 3)
+# Running tablekeeper (stage 4)
 
 Build and start (from this folder):
 
 ```sh
-docker build -t tablekeeper-stage-3 . && docker run --rm -e PORT=8080 -p 8080:8080 tablekeeper-stage-3
+docker build -t tablekeeper-stage-4 . && docker run --rm -e PORT=8080 -p 8080:8080 tablekeeper-stage-4
 ```
 
 Health: `curl http://localhost:8080/health` returns `{"status":"ok"}`.

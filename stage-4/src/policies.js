@@ -12,11 +12,17 @@ function restaurantOr404(store, id) {
   return restaurant;
 }
 
-function publish(store, user, body, restaurantId) {
+// The restaurant, if it exists (404) and `user` manages it (403).
+function managedRestaurant(store, user, restaurantId) {
   const restaurant = restaurantOr404(store, restaurantId);
   if (!restaurant.manager_user_ids.includes(user.id)) {
-    throw new ApiError(403, 'forbidden', 'only a manager of this restaurant may publish policies');
+    throw new ApiError(403, 'forbidden', 'only a manager of this restaurant may do that');
   }
+  return restaurant;
+}
+
+function publish(store, user, body, restaurantId) {
+  const restaurant = managedRestaurant(store, user, restaurantId);
   const list = store.policiesOf(restaurant.id);
   const policy = { ...parsePolicy(body, restaurant), policy_version: list.length + 1 };
   list.push(policy);
@@ -29,4 +35,4 @@ function listPolicies(store, restaurantId) {
   return { status: 200, body: { policies: store.policiesOf(restaurant.id).map(publicPolicy) } };
 }
 
-module.exports = { publish, listPolicies };
+module.exports = { publish, listPolicies, managedRestaurant };

@@ -157,9 +157,11 @@ function exportStore(store) {
         ...r,
         policies: store.policiesOf(r.id),
         revision: store.revisions.get(r.id) || 0,
+        closures: store.closuresOf(r.id),
       })),
       reservations: [...store.reservations.values()],
       series: [...store.series.values()],
+      plans: [...store.plans.values()],
       receipts: [...store.receipts.entries()].map(([scope, r]) => ({ scope, ...r })),
     },
   };
@@ -174,6 +176,12 @@ function importRestaurantExtras(store, raw, i) {
   });
   need(raw.revision === undefined || isNonNegativeInt(raw.revision), `${where}.revision is invalid`);
   store.revisions.set(restaurant.id, raw.revision || 0);
+  const closures = listOf(raw.closures, `${where}.closures`).map((c, j) => {
+    need(isObject(c) && findTable(restaurant, c.table_id) && Number.isInteger(c.from_ms) && Number.isInteger(c.to_ms) &&
+      c.from_ms < c.to_ms && typeof c.plan_id === 'string', `${where}.closures[${j}] is invalid`);
+    return { table_id: c.table_id, from_ms: c.from_ms, to_ms: c.to_ms, plan_id: c.plan_id };
+  });
+  if (closures.length > 0) store.closures.set(restaurant.id, closures);
 }
 
 // An exported reservation; stage-1/2 records (no revision) are upgraded.
@@ -205,6 +213,21 @@ function importSeries(store, s, where) {
   store.series.set(s.id, { id: s.id, user_id: s.user_id, interval_weeks: s.interval_weeks, revision: s.revision, occurrences });
 }
 
+function importPlan(store, p, where) {
+  need(isObject(p) && isId(p.id) && !store.plans.has(p.id) && store.restaurants.has(p.restaurant_id), `${where} is invalid`);
+  need(isNonNegativeInt(p.revision) && typeof p.applied === 'boolean' && isObject(p.closure), `${where} is invalid`);
+  const c = p.closure;
+  need(typeof c.table_id === 'string' && typeof c.from === 'string' && typeof c.to === 'string' &&
+    Number.isInteger(c.from_ms) && Number.isInteger(c.to_ms), `${where}.closure is invalid`);
+  need(Array.isArray(p.assignments) && p.assignments.every((a) => isObject(a) && store.reservations.has(a.reservation_id) &&
+    typeof a.reference === 'string' && Array.isArray(a.table_ids) && typeof a.changed === 'boolean'), `${where}.assignments is invalid`);
+  store.plans.set(p.id, {
+    id: p.id, restaurant_id: p.restaurant_id, revision: p.revision, applied: p.applied,
+    closure: { table_id: c.table_id, from: c.from, to: c.to, from_ms: c.from_ms, to_ms: c.to_ms },
+    assignments: p.assignments.map((a) => ({ reservation_id: a.reservation_id, reference: a.reference, table_ids: [...a.table_ids], changed: a.changed })),
+  });
+}
+
 // POST /_test/import body -> new Store (422 on anything this service did not export).
 function storeFromExport(doc) {
   need(doc.track === TRACK, 'track must be "tablekeeper"');
@@ -232,6 +255,7 @@ function storeFromExport(doc) {
   });
   checkConsistency(store);
   listOf(s.series, 'state.series').forEach((x, i) => importSeries(store, x, `state.series[${i}]`));
+  listOf(s.plans, 'state.plans').forEach((p, i) => importPlan(store, p, `state.plans[${i}]`));
   for (const r of store.reservations.values()) {
     need(r.series_id === null || store.series.has(r.series_id), `reservation ${r.id} names an unknown series`);
   }

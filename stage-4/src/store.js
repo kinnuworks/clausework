@@ -19,6 +19,8 @@ class Store {
     this.policies = new Map();     // restaurant id -> published policies, publication order
     this.revisions = new Map();    // restaurant id -> restaurant revision counter
     this.series = new Map();       // series id -> { id, user_id, interval_weeks, revision, occurrences }
+    this.plans = new Map();        // plan id -> stored seating plan (preview), applied or not
+    this.closures = new Map();     // restaurant id -> applied closures { table_id, from_ms, to_ms, plan_id }
     this.seq = 0;
   }
 
@@ -30,6 +32,14 @@ class Store {
   // The policy that governs bookings starting on local date "YYYY-MM-DD".
   policyFor(restaurant, date) {
     return selectPolicy(restaurant, this.policiesOf(restaurant.id), date);
+  }
+
+  closuresOf(restaurantId) {
+    return this.closures.get(restaurantId) || [];
+  }
+
+  revisionOf(restaurantId) {
+    return this.revisions.get(restaurantId) || 0;
   }
 
   bumpRevision(restaurantId) {

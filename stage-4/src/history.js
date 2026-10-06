@@ -27,8 +27,9 @@ function changesBetween(before, after) {
   return changes;
 }
 
-// `rec` with one more history entry describing its current revision and terms.
-function withEntry(rec, event, changes, at) {
+// `rec` with one more history entry describing its current revision and terms;
+// `extra` adds event-specific fields (a reassignment's plan_id).
+function withEntry(rec, event, changes, at, extra = {}) {
   const entry = {
     seq: rec.history.length + 1,
     at,
@@ -36,6 +37,7 @@ function withEntry(rec, event, changes, at) {
     changes,
     revision: rec.revision,
     accepted_terms: JSON.parse(JSON.stringify(rec.terms)),
+    ...extra,
   };
   return { ...rec, history: [...rec.history, entry] };
 }

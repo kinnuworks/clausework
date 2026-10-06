@@ -82,4 +82,4 @@ function show(store, user, id) {
   return { status: 200, body: view(store, s) };
 }
 
-module.exports = { create, show };
+module.exports = { create, show, view };

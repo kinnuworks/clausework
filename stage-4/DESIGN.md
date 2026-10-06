@@ -1,4 +1,4 @@
-# Design note — tablekeeper stage 3
+# Design note — tablekeeper stage 4
 
 ## What was chosen
 
@@ -76,6 +76,30 @@
   date's policy and checked in index order before any is stored.
 - **Older exports**: stage-1/2 reservations import at revision 1 under
   policy 0 with one `created` history entry, exactly like seeded bookings.
+
+## Stage 4 additions
+
+- **Closures are occupancy.** An applied closure is checked inside the same
+  occupancy test as confirmed bookings, so availability, explanations
+  (`no_overlap` false), creates, amendments, moves, series and later plans
+  all respect it without separate code paths.
+- **Planning is a pure search** (`src/optimizer.js`): exhaustive depth-first
+  search over each considered booking's feasible options (capacity under
+  its own accepted terms, no closure or fixed-booking conflict), bounded on
+  moved count then unused seats, ties broken by the rank vector in
+  reference order. Inputs above 6 tables / 4 pairs / 6 bookings are refused
+  with `planning_limit` before searching.
+- **Preview stores only the plan**, tagged with the restaurant revision it
+  was computed at. **Apply** (`src/replans.js`) checks 404, then
+  `plan_already_applied`, then `stale_plan`, and commits the closure, every
+  reassignment (revision +1, one `reassigned` entry with `plan_id`), each
+  affected series revision and the restaurant revision in one synchronous
+  step. Every write that changes occupancy also bumps the restaurant
+  revision, so an unchanged revision proves the plan is still valid.
+- **Series amend** (`src/series-amend.js`) plans each eligible occurrence
+  with PATCH semantics in index order, checks occupancy for the result,
+  then commits all of it; series and restaurant revisions rise once.
+- Plans and closures are exported and imported with the rest of the state.
 
 ## Other decisions
 

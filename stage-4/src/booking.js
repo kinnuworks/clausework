@@ -77,12 +77,20 @@ function overlaps(a, b) {
 
 const span = (rec) => ({ restaurant_id: rec.restaurant_id, table_ids: rec.table_ids, start_ms: rec.start_ms, end_ms: endOf(rec) });
 
+// An applied closure blocks its table like a confirmed booking would.
+function closed(store, s) {
+  return store.closuresOf(s.restaurant_id).some((c) =>
+    s.table_ids.includes(c.table_id) && s.start_ms < c.to_ms && c.from_ms < s.end_ms);
+}
+
 // Throws 409 table_unavailable unless every candidate is free of every other
-// candidate and of every confirmed booking not being replaced.
+// candidate, of every applied closure and of every confirmed booking not
+// being replaced.
 function checkOccupancy(store, candidates) {
   const spans = candidates.map(span);
   const replaced = new Set(candidates.map((c) => c.id));
   const conflict = () => new ApiError(409, 'table_unavailable', 'the table is taken at that time');
+  if (spans.some((s) => closed(store, s))) throw conflict();
   spans.forEach((c, i) => {
     for (let j = i + 1; j < spans.length; j++) if (overlaps(c, spans[j])) throw conflict();
   });
@@ -95,6 +103,7 @@ function checkOccupancy(store, candidates) {
 
 function areTablesFree(store, restaurantId, tableIds, startMs, endMs) {
   const probe = { restaurant_id: restaurantId, table_ids: tableIds, start_ms: startMs, end_ms: endMs };
+  if (closed(store, probe)) return false;
   for (const rec of store.reservations.values()) {
     if (rec.status === 'confirmed' && overlaps(probe, span(rec))) return false;
   }
@@ -122,5 +131,5 @@ function view(store, rec) {
 
 module.exports = {
   resolveStart, resolveTables, capacityOf, checkCapacity, checkCutoff, checkNotCancelled, checkOccupancy,
-  areTablesFree, durationMs, view,
+  areTablesFree, durationMs, endOf, overlaps, span, closed, view,
 };
