@@ -166,3 +166,5 @@ main { display: block; outline: none; }
 .notice a { font-weight: 600; }
 .fade-in { animation: fade-in var(--dur) var(--ease); }
 @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.notice-info { border-left: 4px solid var(--amber); background: var(--amber-soft); }
+.notice-info .icon, .notice-info strong { color: var(--amber); }
