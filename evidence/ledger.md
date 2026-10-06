@@ -53,3 +53,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:15 | 2 | probe audit | - | f6c6d3c | - | Stage-2 probes caught 5/5 planted (UI retry key, out-of-order search, S1-97 order, PATCH atomicity, pair overlap); supplied checks 0/5 |
 | 07:16 | 3 | inspect | 1 | bc172db | inspector: verdict-1 by 07:50; examiner: reveal; finisher: stage-3/ui delta (amendment if it lands) | Builder: isolated S1 120/120, S2 25/25, S3 7/7, claimed 3 |
 | 07:22 | 3 | revision amended | 1 | a8900ab (HEAD fcf32b9) | inspector: verdict incl. UI delta | Finisher stage-3/ui: policy-truthful grid via explain, O1/O2 fixed; probes revealed fcf32b9 |
+| 07:24 | 4 (look-ahead) | finisher design | - | 6248726 | - | Ticket re-reads GET /reservations/{ref} after receipt so applied plans show; design only |
