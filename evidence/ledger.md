@@ -54,3 +54,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:16 | 3 | inspect | 1 | bc172db | inspector: verdict-1 by 07:50; examiner: reveal; finisher: stage-3/ui delta (amendment if it lands) | Builder: isolated S1 120/120, S2 25/25, S3 7/7, claimed 3 |
 | 07:22 | 3 | revision amended | 1 | a8900ab (HEAD fcf32b9) | inspector: verdict incl. UI delta | Finisher stage-3/ui: policy-truthful grid via explain, O1/O2 fixed; probes revealed fcf32b9 |
 | 07:24 | 4 (look-ahead) | finisher design | - | 6248726 | - | Ticket re-reads GET /reservations/{ref} after receipt so applied plans show; design only |
+| 07:25 | 3 | verdict | 1 | bc172db | finisher: round 2 on a8900ab (already pre-checked passing) | REJECT F1 surface: grid hid policy pair (fixed in a8900ab). API, S1-3 checks 120/25/7, probes 101/101 pass. O1 '1 seats' |
