@@ -12,6 +12,8 @@ const T = require('./time');
 const TRACK = 'tablekeeper';
 const FORMAT_VERSION = 1;
 const STATUSES = ['confirmed', 'cancelled'];
+const REFERENCE = /^[A-Z0-9]{6,12}$/;
+const EMAIL = /^[^\s@]+@[^\s@]+$/;
 
 class Store {
   constructor() {
@@ -88,7 +90,7 @@ function addRestaurants(store, list) {
 function checkUserShape(u, where) {
   need(isObject(u), `${where} must be an object`);
   need(isId(u.id), `${where}.id must be 1..64 characters`);
-  need(typeof u.email === 'string' && u.email.length > 0, `${where}.email must be a string`);
+  need(typeof u.email === 'string' && EMAIL.test(u.email), `${where}.email must look like local@domain`);
   need(typeof u.display_name === 'string', `${where}.display_name must be a string`);
 }
 
@@ -104,17 +106,31 @@ function placeReservation(store, r, where) {
   need(restaurant, `${where}.restaurant_id is unknown`);
   need(typeof r.table_id === 'string' && findTable(restaurant, r.table_id), `${where}.table_id is unknown`);
   need(isPositiveInt(r.party_size), `${where}.party_size must be a positive integer`);
+  need(r.party_size <= findTable(restaurant, r.table_id).capacity, `${where}.party_size exceeds the table capacity`);
   const parsed = T.parseLocalMinute(r.starts_at_local);
   need(parsed, `${where}.starts_at_local must be YYYY-MM-DDTHH:MM`);
   const start = T.resolveLocal(restaurant.timezone, parsed.dayNaive + parsed.minute * T.MINUTE);
   need(start !== null, `${where}.starts_at_local does not exist`);
-  need(r.reference === undefined || (isId(r.reference)), `${where}.reference must be 1..64 characters`);
+  need(r.reference === undefined || REFERENCE.test(r.reference), `${where}.reference must be 6..12 of A-Z0-9`);
   need(r.reference === undefined || !store.references.has(r.reference), `${where}.reference is duplicated`);
   need(r.id === undefined || isId(r.id), `${where}.id must be 1..64 characters`);
   need(r.id === undefined || !store.reservations.has(r.id), `${where}.id is duplicated`);
   need(r.status === undefined || STATUSES.includes(r.status), `${where}.status is invalid`);
   need(r.created_at === undefined || typeof r.created_at === 'string', `${where}.created_at must be a string`);
   return start;
+}
+
+// Confirmed reservations must not share a table at overlapping times.
+function checkNoOverlap(store) {
+  const confirmed = [...store.reservations.values()].filter((r) => r.status === 'confirmed');
+  confirmed.forEach((a, i) => {
+    const duration = store.restaurants.get(a.restaurant_id).reservation_duration_minutes * T.MINUTE;
+    for (const b of confirmed.slice(i + 1)) {
+      need(!(a.restaurant_id === b.restaurant_id && a.table_id === b.table_id &&
+        a.start_ms < b.start_ms + duration && b.start_ms < a.start_ms + duration),
+      `reservations ${a.id} and ${b.id} overlap on one table`);
+    }
+  });
 }
 
 // POST /_test/reset body -> new Store (422 on an invalid fixture).
@@ -145,6 +161,7 @@ async function storeFromFixture(fixture) {
       created_at: r.created_at || now,
     });
   });
+  checkNoOverlap(store);
   const hashes = await Promise.all(users.map((u) => hashPassword(u.password)));
   users.forEach((u, i) => { store.users.get(u.id).password_hash = hashes[i]; });
   return store;
@@ -187,7 +204,7 @@ function storeFromExport(doc) {
   addRestaurants(store, listOf(s.restaurants, 'state.restaurants'));
   listOf(s.reservations, 'state.reservations').forEach((r, i) => {
     const where = `state.reservations[${i}]`;
-    need(isObject(r) && isId(r.id) && isId(r.reference), `${where} needs id and reference`);
+    need(isObject(r) && isId(r.id) && typeof r.reference === 'string', `${where} needs id and reference`);
     need(STATUSES.includes(r.status) && typeof r.created_at === 'string', `${where} needs status and created_at`);
     const start = placeReservation(store, r, where);
     need(r.start_ms === start, `${where}.start_ms does not match starts_at_local`);
@@ -197,6 +214,7 @@ function storeFromExport(doc) {
       starts_at_local: r.starts_at_local, start_ms: r.start_ms, created_at: r.created_at,
     });
   });
+  checkNoOverlap(store);
   listOf(s.receipts, 'state.receipts').forEach((r, i) => {
     need(isObject(r) && typeof r.scope === 'string' && typeof r.body === 'string', `state.receipts[${i}] is invalid`);
     need(isPositiveInt(r.status) && isObject(r.response), `state.receipts[${i}] is invalid`);
