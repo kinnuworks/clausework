@@ -61,3 +61,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:30 | 4 | OPEN | 1 | - | builder: stage-4 revision by 08:15; finisher: ticket re-read into stage-4/ui + applied-plan truth; examiner: stage-4 seal by 08:05 | |
 | 07:33 | 4 | inspect | 1 | 4c5ea79 (builder 9334ea9 + finisher ui) | inspector: verdict by 08:00; examiner: reveal + audit by 08:05 | Builder isolated S1 120/120, S2 25/25, S3 7/7, S4 6/6, claimed 4. Seal 6c23855 2803a2c6…797c |
 | 07:34 | 3 | probe audit | - | - | - | Stage-3 probes 5/5 planted caught, supplied 1/5 |
+| 07:34 | 3/4 | ruling | - | - | - | Examiner: readings (a)-(e),(g) agree; (f) restaurant revision +1 per successful non-no-op op (adoption once, batch once), not on no-op/failure/replay. Stage 3 internal only; checked in stage-4 inspection |
