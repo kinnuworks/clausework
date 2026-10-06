@@ -137,9 +137,9 @@
 .tile > * { min-width: 0; }
 .seats-sm { display: none; }
 @container tile (max-width: 120px) {
-  .tile-label .prefix, .count-text, .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tile-label .prefix, .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* The seat count stays in words; the dots give way so nothing wraps. */
   .tile-foot .seats { display: none; }
-  .tile-top .seats-sm { display: flex; flex-wrap: nowrap; }
   .tile-status { white-space: normal; line-height: 1.15; }
   .tile-foot { justify-content: flex-start; }
 }
