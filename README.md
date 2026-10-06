@@ -77,15 +77,3 @@ of four stages from one message, in 85 minutes, in a different language (Python)
 different look. It is public, unedited, at
 [kinnuworks/clausework-tablekeeper](https://github.com/kinnuworks/clausework-tablekeeper).
 We submit this run because its interface is better; `FACTORY.md` says what differed.
-
-## Known limits
-
-- Two full runs and two short rehearsals. That is a small sample.
-- The supplied checks are a sample. We cannot see the full suites; our evidence for the
-  rest is the sealed checks, the planted-defect audit and the inspector's own attacks.
-- Several planted defects were caught by exactly one check; the audits say which.
-- On a phone, a booking panel that is already open keeps showing the original table after
-  the restaurant moves the booking (the ticket and lookup show the new one).
-- The dispatch for this run carries a product brief for the screens; the look is not the
-  band's own invention. The first run shows what it chooses unprompted.
-- More in [`FACTORY.md`](FACTORY.md#8-what-went-wrong-and-what-we-would-change).
