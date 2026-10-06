@@ -4,7 +4,7 @@
 //   { kind: "lost", reason }                — no trustworthy answer (network, timeout, 5xx)
 import { session } from "./session.js";
 
-const TIMEOUT_MS = 12000;
+const TIMEOUT_MS = 8000;
 
 export async function request(method, path, { body, headers = {}, auth = false } = {}) {
   const init = { method, headers: { Accept: "application/json", ...headers } };

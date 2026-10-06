@@ -98,6 +98,72 @@ with sync_playwright() as p:
     check("409 refreshed availability", len(avail_calls) >= 1)
     page.unroute("**/reservations")
 
+    # Uncertain then a confirmed refusal: booking-error only. Then a changed field gets a new key.
+    page.unroute("**/reservations")
+    page.get_by_test_id("slot-t_5-18:00").click()
+    keys2 = []
+    def lose_then_refuse(route):
+        keys2.append(route.request.headers.get("idempotency-key"))
+        if len(keys2) == 1:
+            route.abort("connectionreset")
+        else:
+            route.fulfill(status=422, content_type="application/json",
+                          body='{"error":{"code":"party_exceeds_capacity","message":"x"}}')
+    page.route("**/reservations", lose_then_refuse)
+    page.get_by_test_id("booking-submit").click()
+    expect(page.get_by_test_id("booking-uncertain")).to_be_visible()
+    page.get_by_test_id("booking-submit").click()
+    expect(page.get_by_test_id("booking-error")).to_be_visible()
+    check("refusal after uncertain shows error only",
+          page.get_by_test_id("booking-uncertain").count() == 0 and page.get_by_test_id("confirmation").count() == 0)
+    page.get_by_test_id("booking-party-size").fill("1")
+    page.get_by_test_id("booking-submit").click()
+    page.wait_for_timeout(300)
+    check("changed field uses a new key", len(keys2) == 3 and keys2[0] == keys2[1] and keys2[2] != keys2[0])
+    page.unroute("**/reservations")
+
+    # Copy control on the ticket.
+    page.context.grant_permissions(["clipboard-read", "clipboard-write"])
+    page.get_by_test_id("party-size-input").fill("2")
+    page.get_by_test_id("search-button").click()
+    page.get_by_test_id("slot-t_5-21:00").click()
+    page.get_by_test_id("booking-submit").click()
+    expect(page.get_by_test_id("confirmation-reference")).to_be_visible()
+    ref2 = page.get_by_test_id("confirmation-reference").inner_text()
+    page.get_by_role("button", name=f"Copy reference {ref2}").click()
+    page.wait_for_timeout(200)
+    check("copy control puts the reference on the clipboard", page.evaluate("navigator.clipboard.readText()") == ref2)
+
+    # Wide screens: panel beside the chosen time, and it stays in view while scrolling.
+    row = page.locator(".slot-row.is-chosen").bounding_box()
+    panel = page.locator(".booking-panel").bounding_box()
+    check("panel sits beside chosen time", panel["x"] > row["x"] + row["width"]
+          and panel["y"] < row["y"] + row["height"] and panel["y"] + panel["height"] > row["y"])
+    page.mouse.wheel(0, -2500)
+    page.wait_for_timeout(300)
+    panel = page.locator(".booking-panel").bounding_box()
+    check("panel in view after scrolling up", 0 <= panel["y"] < 900)
+
+    # Motion: nothing longer than 150 ms; none at all under reduced motion.
+    longest = page.evaluate("""() => { let m = 0; for (const el of document.querySelectorAll('*')) {
+        const cs = getComputedStyle(el);
+        for (const v of (cs.transitionDuration + ',' + cs.animationDuration).split(',')) {
+          const t = v.trim().endsWith('ms') ? parseFloat(v) : parseFloat(v) * 1000; if (t > m) m = t; } }
+        return m; }""")
+    check(f"longest motion {longest} ms <= 150", longest <= 150)
+    page.emulate_media(reduced_motion="reduce")
+    still = page.evaluate("""() => [...document.querySelectorAll('*')].every(el => {
+        const cs = getComputedStyle(el); return cs.animationName === 'none' && parseFloat(cs.transitionDuration) === 0; })""")
+    check("reduced motion removes all motion", still)
+    page.emulate_media(reduced_motion="no-preference")
+
+    # Tile width follows seats (2-seat vs 4-seat vs joined 8-seat at the same time).
+    w2 = page.get_by_test_id("slot-t_1-21:00").bounding_box()["width"]
+    w4 = page.get_by_test_id("slot-t_2-21:00").bounding_box()["width"]
+    check("4-seat tile about twice a 2-seat tile", 1.8 < w4 / w2 < 2.3)
+    check("unavailable tiles say so in words", "Taken" in page.get_by_test_id("slot-t_1-20:00").inner_text())
+    check("chosen tile says so in words", "Chosen" in page.get_by_test_id("slot-t_5-21:00").inner_text())
+
     # Lookup.
     page.goto(f"{BASE}/lookup")
     page.get_by_test_id("lookup-reference-input").fill(ref)

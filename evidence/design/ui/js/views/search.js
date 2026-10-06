@@ -186,10 +186,11 @@ function positionPanel() {
   if (!panel || !panel.isConnected) return;
   const layout = panel.closest(".results-layout");
   const row = layout && layout.querySelector(".slot-row.is-chosen");
-  if (!row || window.innerWidth < 960) { panel.style.removeProperty("--panel-offset"); return; }
+  const column = panel.parentElement;
+  if (!row || window.innerWidth < 960) { column.style.removeProperty("--panel-offset"); return; }
   const top = row.getBoundingClientRect().top - layout.getBoundingClientRect().top;
   const room = layout.offsetHeight - panel.offsetHeight;
-  panel.style.setProperty("--panel-offset", `${Math.max(0, Math.min(top, room))}px`);
+  column.style.setProperty("--panel-offset", `${Math.max(0, Math.min(top, room))}px`);
 }
 
 function renderResults(results) {

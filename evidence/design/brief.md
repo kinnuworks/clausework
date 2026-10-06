@@ -57,14 +57,17 @@ Scale: `--fs-xs` 0.8125rem · `--fs-sm` 0.875rem · `--fs-base` 1rem · `--fs-md
 clamp(2rem, 1.4rem + 2.6vw, 3.25rem) · `--fs-ref` clamp(2.5rem, 1.6rem + 4vw, 4rem).
 **Spacing** 4-pt: `--s1` 4 · `--s2` 8 · `--s3` 12 · `--s4` 16 · `--s5` 24 · `--s6` 32 · `--s7` 48 px.
 **Shape** `--r-tile` 10 px · `--r-control` 8 px · `--r-panel` 16 px · pill 999 px.
-**Motion** `--dur` 140 ms, `--ease` cubic-bezier(.2,.7,.2,1); sheet slide, tile press,
-fade. All motion is removed under `prefers-reduced-motion: reduce`.
+**Motion** `--dur` 140 ms, `--ease` cubic-bezier(.2,.7,.2,1); sheet slide, panel slide, tile
+lift, fade — every transition and animation is 140 ms, nothing loops (loading and busy
+states are static shapes + words). All motion is removed under `prefers-reduced-motion: reduce`.
+**Seat grid** each time row is 12 seat-columns (8 on phones); a tile spans one column per
+seat (min 2), so width is proportional to seats; a joined pair spans its combined seats.
 
 ## States — distinguishable without colour
 | State | Where | Shape / word / icon (colour is extra) |
 |---|---|---|
 | empty (before search) | grid area | outlined panel, lantern icon, "Pick a restaurant, date and party size" |
-| loading | grid, buttons | dashed ghost tiles + "Checking tables…" text, `aria-busy`, button reads "Searching…" |
+| loading | grid, buttons | dashed ghost tiles + clock icon + "Checking tables…", `aria-busy`; busy buttons read "Booking…" / "Looking…" with a static stripe |
 | no slots | grid area | `no-slots` panel, closed-door icon, "Closed / no times that day" |
 | available | tile | solid border, seat dots filled, word "Open" |
 | unavailable | tile | diagonal hatch, struck label, word "Taken" or "Too small", no hover lift |
@@ -78,7 +81,8 @@ fade. All motion is removed under `prefers-reduced-motion: reduce`.
 ## Widths
 375 px (spec minimum, phone), 768 px (tablet), 1280 px (desktop). Tiles wrap; the page
 never scrolls sideways. ≥ 960 px: booking panel sits beside the chosen time in a sticky
-column. < 960 px: booking panel is a bottom sheet (non-blocking, ≤ 60 vh, scrolls).
+column (sticky top and bottom, so it stays in view scrolling either way). < 960 px:
+booking panel is a bottom sheet (non-blocking, ≤ 46 vh, scrolls; no scrim, grid stays tappable).
 
 ## Rules carried from the spec
 Exact `data-testid`s, routes `/ /signup /login /lookup`, visible labels, visible focus,

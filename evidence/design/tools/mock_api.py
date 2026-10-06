@@ -1,12 +1,15 @@
 """Design-check mock of the Tablekeeper stage-2 API, serving the static UI.
 
 Only for capturing screens; the real service is the builder's. Stdlib only.
-Usage: python3 mock_api.py <ui-dir> <port>
+Usage: python3 mock_api.py <ui-dir> <port> [upstream-base-url]
+With an upstream URL, every non-screen request is proxied to that real service instead.
 """
 import json
 import secrets
 import sys
 import threading
+import urllib.error
+import urllib.request
 from datetime import date as Date
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -14,6 +17,7 @@ from urllib.parse import urlparse, parse_qs
 
 UI = Path(sys.argv[1]).resolve()
 PORT = int(sys.argv[2])
+UPSTREAM = sys.argv[3].rstrip("/") if len(sys.argv) > 3 else None
 LOCK = threading.Lock()
 
 RESTAURANTS = {
@@ -103,11 +107,32 @@ class H(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def proxy(self):
+        n = int(self.headers.get("Content-Length", "0") or 0)
+        data = self.rfile.read(n) if n else None
+        req = urllib.request.Request(UPSTREAM + self.path, data=data, method=self.command)
+        for h in ("Authorization", "Idempotency-Key", "Content-Type", "Accept"):
+            if self.headers.get(h) is not None:
+                req.add_header(h, self.headers[h])
+        try:
+            resp = urllib.request.urlopen(req, timeout=10)
+            status, body, ctype = resp.status, resp.read(), resp.headers.get("Content-Type", "")
+        except urllib.error.HTTPError as e:
+            status, body, ctype = e.code, e.read(), e.headers.get("Content-Type", "")
+        self.send_response(status)
+        if ctype:
+            self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         u = urlparse(self.path)
         p = u.path
         if p in ("/", "/signup", "/login", "/lookup") or p.startswith("/static/"):
             return self.static(p)
+        if UPSTREAM:
+            return self.proxy()
         if p == "/restaurants":
             return self.send_json(200, {"restaurants": [{k: r[k] for k in ("id", "name", "timezone")} for r in RESTAURANTS.values()]})
         if p.startswith("/restaurants/"):
@@ -139,6 +164,8 @@ class H(BaseHTTPRequestHandler):
         return self.err(404, "not_found")
 
     def do_POST(self):
+        if UPSTREAM:
+            return self.proxy()
         p = urlparse(self.path).path
         raw = self.rfile.read(int(self.headers.get("Content-Length", "0") or 0))
         try:

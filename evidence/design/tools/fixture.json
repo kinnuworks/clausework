@@ -1,0 +1,153 @@
+{
+ "users": [
+  {
+   "id": "u_ada",
+   "email": "ada@example.com",
+   "display_name": "Ada Lovelace"
+  },
+  {
+   "id": "u_bob",
+   "email": "bob@example.com",
+   "display_name": "Bob"
+  }
+ ],
+ "restaurants": [
+  {
+   "id": "r_anker",
+   "name": "Zum Anker",
+   "timezone": "Europe/Berlin",
+   "slot_minutes": 30,
+   "reservation_duration_minutes": 90,
+   "cancellation_cutoff_minutes": 120,
+   "opening_hours": [
+    {
+     "weekday": "tue",
+     "opens": "18:00",
+     "closes": "22:30"
+    },
+    {
+     "weekday": "wed",
+     "opens": "18:00",
+     "closes": "22:30"
+    },
+    {
+     "weekday": "thu",
+     "opens": "18:00",
+     "closes": "22:30"
+    },
+    {
+     "weekday": "fri",
+     "opens": "18:00",
+     "closes": "22:30"
+    },
+    {
+     "weekday": "sat",
+     "opens": "18:00",
+     "closes": "22:30"
+    },
+    {
+     "weekday": "sun",
+     "opens": "18:00",
+     "closes": "22:30"
+    }
+   ],
+   "tables": [
+    {
+     "id": "t_1",
+     "label": "1",
+     "capacity": 2
+    },
+    {
+     "id": "t_2",
+     "label": "2",
+     "capacity": 4
+    },
+    {
+     "id": "t_3",
+     "label": "3",
+     "capacity": 4
+    },
+    {
+     "id": "t_4",
+     "label": "Window booth",
+     "capacity": 6
+    },
+    {
+     "id": "t_5",
+     "label": "5",
+     "capacity": 2
+    }
+   ],
+   "combinable": [
+    [
+     "t_1",
+     "t_2"
+    ],
+    [
+     "t_2",
+     "t_3"
+    ]
+   ]
+  },
+  {
+   "id": "r_lumen",
+   "name": "Lumen Dining Room",
+   "timezone": "America/New_York",
+   "slot_minutes": 30,
+   "reservation_duration_minutes": 90,
+   "cancellation_cutoff_minutes": 120,
+   "opening_hours": [
+    {
+     "weekday": "fri",
+     "opens": "17:30",
+     "closes": "21:00"
+    }
+   ],
+   "tables": [
+    {
+     "id": "l_1",
+     "label": "1",
+     "capacity": 4
+    },
+    {
+     "id": "l_2",
+     "label": "2",
+     "capacity": 8
+    }
+   ],
+   "combinable": []
+  }
+ ],
+ "reservations": [
+  {
+   "id": "res_s1",
+   "reference": "SEEDA1",
+   "user_id": "u_bob",
+   "restaurant_id": "r_anker",
+   "table_id": "t_4",
+   "starts_at_local": "2026-10-08T19:00",
+   "party_size": 5
+  },
+  {
+   "id": "res_s2",
+   "reference": "SEEDB2",
+   "user_id": "u_bob",
+   "restaurant_id": "r_anker",
+   "table_id": "t_1",
+   "starts_at_local": "2026-10-08T20:00",
+   "party_size": 2
+  },
+  {
+   "id": "res_s3",
+   "reference": "SEEDC3",
+   "user_id": "u_bob",
+   "restaurant_id": "r_anker",
+   "table_ids": [
+    "t_2",
+    "t_3"
+   ],
+   "starts_at_local": "2026-10-08T21:00",
+   "party_size": 7
+  }
+ ]
+}

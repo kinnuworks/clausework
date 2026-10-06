@@ -15,9 +15,10 @@
 
 @media (min-width: 960px) {
   .panel-column { position: relative; align-self: stretch; }
+  /* Spacer, not margin: lets the sticky panel rise above its start when scrolling back up. */
+  .panel-column::before { content: ""; display: block; height: var(--panel-offset, 0px); }
   .booking-panel {
-    position: sticky; top: calc(72px + var(--s4));
-    margin-top: var(--panel-offset, 0px);
+    position: sticky; top: calc(72px + var(--s4)); bottom: var(--s4);
     max-height: calc(100vh - 72px - var(--s6)); overflow-y: auto;
     animation: panel-in var(--dur) var(--ease);
   }

@@ -28,7 +28,8 @@ export function renderHeader() {
         }, "Sign out"))
     : h("div", { class: "account" },
         navLink("/login", "Sign in", path),
-        h("a", { class: "btn btn-primary btn-small", href: "/signup", "data-link": true }, "Create account"));
+        h("a", { class: "btn btn-primary btn-small", href: "/signup", "data-link": true },
+          h("span", { class: "label-long" }, "Create account"), h("span", { class: "label-short" }, "Sign up")));
 
   clear(root).append(
     h("div", { class: "header-inner" },

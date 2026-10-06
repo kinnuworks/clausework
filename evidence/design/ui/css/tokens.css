@@ -15,6 +15,7 @@
 }
 
 :root {
+  color-scheme: dark;
   /* colour */
   --ink: #0E1A16;
   --surface: #15241F;
@@ -69,7 +70,6 @@
 
   /* layout */
   --page-max: 1240px;
-  --seat-unit: 1.5rem;
   --panel-w: 380px;
 }
 

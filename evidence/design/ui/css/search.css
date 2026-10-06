@@ -53,13 +53,14 @@
   .slot-time { flex-direction: row; align-items: baseline; gap: var(--s3); }
 }
 
-.tiles { display: flex; flex-wrap: wrap; gap: var(--s2); min-width: 0; }
+/* Seat grid: 12 seat-columns (8 on phones); a tile spans one column per seat it holds. */
+.tiles { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row dense; gap: var(--s2); min-width: 0; }
 
 /* Seating tile: width reflects seats. */
 .tile {
   position: relative;
-  flex: 0 1 calc(var(--cap, 2) * var(--seat-unit) + 5.25rem);
-  max-width: 100%; min-width: 0; min-height: 76px;
+  grid-column: span var(--span, 2);
+  min-width: 0; min-height: 76px;
   display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--s1);
   padding: var(--s2) var(--s3);
   background: var(--raised); color: var(--text);
@@ -111,10 +112,9 @@
 
 /* Loading / empty / no-slots */
 .ghost-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: var(--s4); padding: var(--s3) var(--s4); border-radius: var(--r-panel); border: 1px dashed var(--line); }
-.ghost { border-radius: var(--r-tile); border: 1px dashed var(--line-strong); height: 64px; background: var(--surface); animation: breathe 1.4s ease-in-out infinite; }
+.ghost { border-radius: var(--r-tile); border: 1px dashed var(--line-strong); height: 64px; background: var(--surface); }
 .ghost.time { height: 32px; width: 5rem; align-self: center; }
 .ghost-tiles { display: flex; flex-wrap: wrap; gap: var(--s2); }
-@keyframes breathe { 50% { opacity: 0.45; } }
 @media (max-width: 560px) { .ghost-row { grid-template-columns: minmax(0, 1fr); } }
 
 .state-panel {
@@ -129,14 +129,16 @@
 @media (max-width: 560px) { .state-panel { flex-direction: column; align-items: flex-start; padding: var(--s5) var(--s4); } }
 .results .notice { margin-bottom: var(--s4); }
 
-/* Phones: compact tiles so a whole time fits in two or three lines. */
+/* Phones: 8 seat-columns, compact tiles; status words stay visible. */
 @media (max-width: 560px) {
-  :root { --seat-unit: 0.55rem; }
-  .tiles { gap: 6px; }
-  .tile { flex-basis: calc(var(--cap, 2) * var(--seat-unit) + 2.6rem); flex-grow: var(--cap, 2); min-height: 64px; padding: 6px 8px; }
+  .tiles { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+  .tile { grid-column: span var(--span-sm, 2); min-height: 64px; padding: 6px 8px; }
   .tile-label { font-size: var(--fs-sm); }
   .tile-foot { flex-wrap: wrap; gap: 2px 6px; }
-  .tile-label .prefix, .tile-status .word, .tile .count-text, .tile-pair .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tile-status { white-space: normal; line-height: 1.15; }
+  .tile-label .prefix, .tile .count-text, .tile-pair .pair-note { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tile-foot .seats { display: none; }
+  .tile-top .seats-sm { display: flex; }
   .seat { width: 6px; height: 6px; }
   .tile-pair .part { font-size: var(--fs-sm); padding: 0 6px; }
   .tile-pair .link { width: 13px; height: 13px; }
@@ -144,3 +146,4 @@
   .slot-row { gap: 6px; }
   .slot-time time { font-size: 1.75rem; }
 }
+.seats-sm { display: none; }

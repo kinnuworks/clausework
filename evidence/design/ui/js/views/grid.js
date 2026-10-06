@@ -34,10 +34,10 @@ export function optionKey(ids, startsAtLocal) {
   return `${ids.join("+")}@${startsAtLocal}`;
 }
 
-function seats(capacity) {
+function seats(capacity, cls = "seats") {
   const dots = [];
   for (let i = 0; i < Math.min(capacity, MAX_DOTS); i += 1) dots.push(h("span", { class: "seat" }));
-  return h("span", { class: "seats", "aria-hidden": "true" }, dots);
+  return h("span", { class: cls, "aria-hidden": "true" }, dots);
 }
 
 // "Table 2" on wide screens; the "Table" prefix folds away on phones, leaving "2".
@@ -78,10 +78,10 @@ function tile(option, slot, ctx) {
     "data-state": st.state,
     "aria-pressed": available ? (chosen ? "true" : "false") : null,
     "aria-label": `${name}${pair ? ", joined" : ""}, ${option.capacity} seats, ${time}: ${st.word}`,
-    style: { "--cap": String(Math.min(option.capacity, MAX_DOTS)) },
+    style: { "--span": String(Math.min(Math.max(option.capacity, 2), 12)), "--span-sm": String(Math.min(Math.max(option.capacity, 2), 8)) },
     onclick: () => { if (available) ctx.onPick({ ids: option.ids, tables: option.tables, capacity: option.capacity, slot, key }); },
   },
-    h("span", { class: "tile-top" }, label, h("span", { class: "count-text" }, `${option.capacity} seats`)),
+    h("span", { class: "tile-top" }, label, h("span", { class: "count-text" }, `${option.capacity} seats`), seats(option.capacity, "seats seats-sm")),
     pair ? h("span", { class: "pair-note" }, "Joined tables") : null,
     h("span", { class: "tile-foot" },
       h("span", { class: "tile-status" }, icon(st.icon), h("span", { class: "word" }, st.word)),
