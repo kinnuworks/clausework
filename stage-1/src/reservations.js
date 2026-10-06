@@ -131,10 +131,15 @@ function moveBatch(store, user, body, now) {
     throw invalid('each move needs a string reference');
   }
   if (new Set(moves.map((m) => m.reference)).size !== moves.length) throw invalid('references must be distinct');
-  const current = moves.map((m) => ownReservation(store, user, m.reference));
-  const restaurantId = current[0].restaurant_id;
-  if (current.some((r) => r.restaurant_id !== restaurantId)) throw invalid('all bookings must be at one restaurant');
-  const planned = moves.map((m, i) => planAmendment(store, current[i], readAmendment(m), now.ms));
+  // Each item is resolved and planned completely before the next, so the
+  // first failing item in input order decides the error.
+  let restaurantId = null;
+  const planned = moves.map((m) => {
+    const rec = ownReservation(store, user, m.reference);
+    restaurantId = restaurantId || rec.restaurant_id;
+    if (rec.restaurant_id !== restaurantId) throw invalid('all bookings must be at one restaurant');
+    return planAmendment(store, rec, readAmendment(m), now.ms);
+  });
   B.checkOccupancy(store, store.restaurants.get(restaurantId), planned);
   planned.forEach((next) => store.addReservation(next));
   return { status: 201, body: { reservations: planned.map((r) => B.view(store, r)) } };

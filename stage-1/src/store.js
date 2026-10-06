@@ -111,7 +111,7 @@ function placeReservation(store, r, where) {
   need(parsed, `${where}.starts_at_local must be YYYY-MM-DDTHH:MM`);
   const start = T.resolveLocal(restaurant.timezone, parsed.dayNaive + parsed.minute * T.MINUTE);
   need(start !== null, `${where}.starts_at_local does not exist`);
-  need(r.reference === undefined || REFERENCE.test(r.reference), `${where}.reference must be 6..12 of A-Z0-9`);
+  need(r.reference === undefined || (typeof r.reference === 'string' && REFERENCE.test(r.reference)), `${where}.reference must be 6..12 of A-Z0-9`);
   need(r.reference === undefined || !store.references.has(r.reference), `${where}.reference is duplicated`);
   need(r.id === undefined || isId(r.id), `${where}.id must be 1..64 characters`);
   need(r.id === undefined || !store.reservations.has(r.id), `${where}.id is duplicated`);

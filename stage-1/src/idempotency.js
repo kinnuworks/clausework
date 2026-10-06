@@ -19,13 +19,35 @@ function readKey(req) {
 }
 
 // JSON text with object keys sorted, so equal JSON values compare equal.
+// Iterative, so arbitrarily deep request bodies cannot exhaust the stack.
 function canonical(value) {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
-  if (value !== null && typeof value === 'object') {
-    const keys = Object.keys(value).sort();
-    return `{${keys.map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`;
+  const out = [];
+  const pending = [{ value }];
+  while (pending.length > 0) {
+    const item = pending.pop();
+    if ('text' in item) {
+      out.push(item.text);
+      continue;
+    }
+    const v = item.value;
+    if (v === null || typeof v !== 'object') {
+      out.push(JSON.stringify(v));
+      continue;
+    }
+    const isArray = Array.isArray(v);
+    const keys = isArray ? null : Object.keys(v).sort();
+    const parts = isArray
+      ? v.map((element) => [{ value: element }])
+      : keys.map((k) => [{ text: `${JSON.stringify(k)}:` }, { value: v[k] }]);
+    const sequence = [{ text: isArray ? '[' : '{' }];
+    parts.forEach((part, i) => {
+      if (i > 0) sequence.push({ text: ',' });
+      sequence.push(...part);
+    });
+    sequence.push({ text: isArray ? ']' : '}' });
+    for (let i = sequence.length - 1; i >= 0; i--) pending.push(sequence[i]);
   }
-  return JSON.stringify(value);
+  return out.join('');
 }
 
 // `run` must be synchronous and return { status, body } or throw ApiError.
