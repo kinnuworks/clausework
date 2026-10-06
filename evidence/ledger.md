@@ -51,3 +51,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:13 | 2 | FROZEN | 1 | fbae59c (tag stage-2-frozen) | - | Rounds used 1; time 06:59-07:13 (14 min). Open clauses: none known. Probe audit still pending (non-blocking) |
 | 07:13 | 3 | OPEN | 1 | - | builder: stage-3 revision by 08:15; finisher: surface truth under policies; examiner: seal already in (4f3a492) | Remaining time re-split: S3 to 08:30, S4 to 08:52 |
 | 07:15 | 2 | probe audit | - | f6c6d3c | - | Stage-2 probes caught 5/5 planted (UI retry key, out-of-order search, S1-97 order, PATCH atomicity, pair overlap); supplied checks 0/5 |
+| 07:16 | 3 | inspect | 1 | bc172db | inspector: verdict-1 by 07:50; examiner: reveal; finisher: stage-3/ui delta (amendment if it lands) | Builder: isolated S1 120/120, S2 25/25, S3 7/7, claimed 3 |
