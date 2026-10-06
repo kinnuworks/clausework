@@ -185,7 +185,7 @@ $5). The run was on a subscription, so nothing was billed per token.
 | **Total** | **666** | **1,669,952** | **133,488,429** | **858,823** | **$52.23** |
 
 136.0 M tokens in total. Wall-clock 74 minutes. Checking (examiner + inspector) cost
-$22.78, building (builder + finisher) $22.65, coordination $6.55. Three calls ($0.05) could not be attributed to a seat.
+$22.78, building (builder + finisher) $22.65, coordination $6.55. Thirteen short calls ($0.25) could not be attributed to a seat.
 
 **Development before this run** (all on the same day, same five seats):
 
