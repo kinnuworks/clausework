@@ -47,6 +47,7 @@ function parseRestaurant(raw, index) {
   need(Array.isArray(raw.tables), `${where}.tables must be an array`);
   const tables = raw.tables.map((t, i) => parseTable(t, `${where}.tables[${i}]`));
   need(new Set(tables.map((t) => t.id)).size === tables.length, `${where}: table ids must be unique`);
+  const combinable = parseCombinable(raw.combinable, tables, where);
   return {
     id: raw.id,
     name: raw.name,
@@ -56,7 +57,35 @@ function parseRestaurant(raw, index) {
     cancellation_cutoff_minutes: raw.cancellation_cutoff_minutes,
     opening_hours: hours.map((h, i) => parseHours(h, `${where}.opening_hours[${i}]`)),
     tables,
+    combinable,
   };
+}
+
+// Declared pairs: each entry two distinct tables of this restaurant. A pair
+// declared twice (in either order) is kept once, at its first position.
+function parseCombinable(raw, tables, where) {
+  if (raw === undefined) return [];
+  need(Array.isArray(raw), `${where}.combinable must be an array`);
+  const ids = new Set(tables.map((t) => t.id));
+  const seen = new Set();
+  const pairs = [];
+  raw.forEach((pair, i) => {
+    need(Array.isArray(pair) && pair.length === 2, `${where}.combinable[${i}] must be a pair of table ids`);
+    need(pair.every((id) => ids.has(id)), `${where}.combinable[${i}] names an unknown table`);
+    need(pair[0] !== pair[1], `${where}.combinable[${i}] must name two different tables`);
+    const key = pairKey(pair);
+    if (!seen.has(key)) pairs.push([pair[0], pair[1]]);
+    seen.add(key);
+  });
+  return pairs;
+}
+
+const pairKey = (pair) => JSON.stringify([...pair].sort());
+
+// The declared pair holding exactly these two ids, in `combinable` order; or null.
+function declaredPair(restaurant, ids) {
+  const key = pairKey(ids);
+  return restaurant.combinable.find((pair) => pairKey(pair) === key) || null;
 }
 
 function findTable(restaurant, tableId) {
@@ -70,4 +99,4 @@ function windowsFor(restaurant, weekday) {
     .map((h) => ({ opens: parseClock(h.opens), closes: parseClock(h.closes, true) }));
 }
 
-module.exports = { parseRestaurant, findTable, windowsFor, isId };
+module.exports = { parseRestaurant, findTable, declaredPair, windowsFor, isId };

@@ -5,7 +5,7 @@
 
 const { invalid } = require('./errors');
 const { isObject, isPositiveInt, isNonNegativeInt } = require('./fields');
-const { parseRestaurant, findTable, isId } = require('./catalog');
+const { parseRestaurant, findTable, declaredPair, isId } = require('./catalog');
 const { hashPassword, newToken, tokenDigest, newReference } = require('./secrets');
 const T = require('./time');
 
@@ -99,14 +99,29 @@ function checkUniqueUser(store, u) {
   need(!store.emails.has(u.email.toLowerCase()), `duplicate email ${u.email}`);
 }
 
-// Validates a reservation's links and timing against the store; returns its start instant.
+// A stored reservation's tables: `table_ids`, or stage-1's single `table_id`.
+// Returns them as a set in canonical order (pairs in `combinable` order).
+function placeTables(restaurant, r, where) {
+  need(!('table_id' in r && 'table_ids' in r), `${where} must not hold both table_id and table_ids`);
+  const ids = 'table_ids' in r ? r.table_ids : [r.table_id];
+  need(Array.isArray(ids) && ids.every((id) => typeof id === 'string'), `${where}.table_ids must be table ids`);
+  need(ids.length >= 1 && ids.every((id) => findTable(restaurant, id)), `${where} names an unknown table`);
+  if (ids.length === 1) return ids;
+  const pair = ids.length === 2 ? declaredPair(restaurant, ids) : null;
+  need(pair, `${where}.table_ids is not a declared pair`);
+  return [...pair];
+}
+
+// Validates a reservation's links and timing against the store; returns its
+// start instant and table set.
 function placeReservation(store, r, where) {
   need(store.users.has(r.user_id), `${where}.user_id is unknown`);
   const restaurant = store.restaurants.get(r.restaurant_id);
   need(restaurant, `${where}.restaurant_id is unknown`);
-  need(typeof r.table_id === 'string' && findTable(restaurant, r.table_id), `${where}.table_id is unknown`);
+  const tableIds = placeTables(restaurant, r, where);
   need(isPositiveInt(r.party_size), `${where}.party_size must be a positive integer`);
-  need(r.party_size <= findTable(restaurant, r.table_id).capacity, `${where}.party_size exceeds the table capacity`);
+  const seats = tableIds.reduce((sum, id) => sum + findTable(restaurant, id).capacity, 0);
+  need(r.party_size <= seats, `${where}.party_size exceeds the table capacity`);
   const parsed = T.parseLocalMinute(r.starts_at_local);
   need(parsed, `${where}.starts_at_local must be YYYY-MM-DDTHH:MM`);
   const start = T.resolveLocal(restaurant.timezone, parsed.dayNaive + parsed.minute * T.MINUTE);
@@ -117,7 +132,7 @@ function placeReservation(store, r, where) {
   need(r.id === undefined || !store.reservations.has(r.id), `${where}.id is duplicated`);
   need(r.status === undefined || STATUSES.includes(r.status), `${where}.status is invalid`);
   need(r.created_at === undefined || typeof r.created_at === 'string', `${where}.created_at must be a string`);
-  return start;
+  return { start, tableIds };
 }
 
 // Confirmed reservations must not share a table at overlapping times.
@@ -126,7 +141,7 @@ function checkNoOverlap(store) {
   confirmed.forEach((a, i) => {
     const duration = store.restaurants.get(a.restaurant_id).reservation_duration_minutes * T.MINUTE;
     for (const b of confirmed.slice(i + 1)) {
-      need(!(a.restaurant_id === b.restaurant_id && a.table_id === b.table_id &&
+      need(!(a.restaurant_id === b.restaurant_id && a.table_ids.some((id) => b.table_ids.includes(id)) &&
         a.start_ms < b.start_ms + duration && b.start_ms < a.start_ms + duration),
       `reservations ${a.id} and ${b.id} overlap on one table`);
     }
@@ -147,13 +162,13 @@ async function storeFromFixture(fixture) {
   const now = T.formatUtc(Date.now());
   listOf(fixture.reservations, 'reservations').forEach((r, i) => {
     need(isObject(r), `reservations[${i}] must be an object`);
-    const start = placeReservation(store, r, `reservations[${i}]`);
+    const { start, tableIds } = placeReservation(store, r, `reservations[${i}]`);
     store.addReservation({
       id: r.id === undefined ? store.nextId('res_', store.reservations) : r.id,
       reference: r.reference === undefined ? store.nextReference() : r.reference,
       user_id: r.user_id,
       restaurant_id: r.restaurant_id,
-      table_id: r.table_id,
+      table_ids: tableIds,
       party_size: r.party_size,
       status: r.status || 'confirmed',
       starts_at_local: r.starts_at_local,
@@ -206,11 +221,11 @@ function storeFromExport(doc) {
     const where = `state.reservations[${i}]`;
     need(isObject(r) && isId(r.id) && typeof r.reference === 'string', `${where} needs id and reference`);
     need(STATUSES.includes(r.status) && typeof r.created_at === 'string', `${where} needs status and created_at`);
-    const start = placeReservation(store, r, where);
+    const { start, tableIds } = placeReservation(store, r, where);
     need(r.start_ms === start, `${where}.start_ms does not match starts_at_local`);
     store.addReservation({
       id: r.id, reference: r.reference, user_id: r.user_id, restaurant_id: r.restaurant_id,
-      table_id: r.table_id, party_size: r.party_size, status: r.status,
+      table_ids: tableIds, party_size: r.party_size, status: r.status,
       starts_at_local: r.starts_at_local, start_ms: r.start_ms, created_at: r.created_at,
     });
   });

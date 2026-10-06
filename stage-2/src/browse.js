@@ -4,7 +4,8 @@
 const { invalid, notFound } = require('./errors');
 const { parseDigits } = require('./fields');
 const { windowsFor } = require('./catalog');
-const { isTableFree } = require('./booking');
+const { areTablesFree, capacityOf } = require('./booking');
+const { findTable } = require('./catalog');
 const T = require('./time');
 
 function listRestaurants(store) {
@@ -31,7 +32,11 @@ function availability(store, query) {
 
   const tz = restaurant.timezone;
   const duration = restaurant.reservation_duration_minutes * T.MINUTE;
-  const tables = restaurant.tables.filter((t) => t.capacity >= partySize);
+  // Every seating option that fits the party: singles in fixture order, then pairs.
+  const options = [
+    ...restaurant.tables.map((t) => [t]),
+    ...restaurant.combinable.map((pair) => pair.map((id) => findTable(restaurant, id))),
+  ].filter((tables) => capacityOf(tables) >= partySize);
   const slots = [];
   for (const w of windowsFor(restaurant, T.weekdayOf(dayNaive))) {
     const closes = T.resolveLocalLenient(tz, dayNaive + w.closes * T.MINUTE);
@@ -39,10 +44,17 @@ function availability(store, query) {
       const naive = dayNaive + minute * T.MINUTE;
       const start = T.resolveLocal(tz, naive);
       if (start === null || start + duration > closes) continue;
+      const free = options
+        .map((tables) => tables.map((t) => t.id))
+        .filter((ids) => areTablesFree(store, restaurant, ids, start));
       slots.push({
         starts_at_local: T.formatNaiveMinute(naive),
         starts_at: T.formatInstant(tz, start),
-        available_table_ids: tables.filter((t) => isTableFree(store, restaurant, t.id, start)).map((t) => t.id),
+        available_table_ids: free.filter((ids) => ids.length === 1).map((ids) => ids[0]),
+        available_options: free.map((ids) => ({
+          table_ids: ids,
+          capacity: capacityOf(ids.map((id) => findTable(restaurant, id))),
+        })),
       });
     }
   }

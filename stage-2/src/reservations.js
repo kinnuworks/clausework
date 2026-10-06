@@ -6,10 +6,7 @@
 
 const { malformed, invalid, notFound } = require('./errors');
 const { isObject, checkId, checkPartySize } = require('./fields');
-const { findTable } = require('./catalog');
 const B = require('./booking');
-
-const FIELDS = ['restaurant_id', 'table_id', 'starts_at_local'];
 
 // Wrong JSON types for the string fields are 400; party_size is always 422.
 function checkTypes(body, names) {
@@ -22,27 +19,50 @@ function checkStartFormat(value) {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) throw invalid('starts_at_local must be a local YYYY-MM-DDTHH:MM');
 }
 
+// Type check of a table selection: table_id a string, table_ids an array of strings.
+function checkTableTypes(body) {
+  checkTypes(body, ['table_id']);
+  if ('table_ids' in body && !(Array.isArray(body.table_ids) && body.table_ids.every((id) => typeof id === 'string'))) {
+    throw malformed('table_ids must be an array of strings');
+  }
+}
+
+// Value check of a table selection -> the ids as a list, or undefined when
+// neither field was sent. Both fields, an empty set or a repeated id are 422.
+function readTableIds(body) {
+  const hasOne = 'table_id' in body;
+  const hasMany = 'table_ids' in body;
+  if (hasOne && hasMany) throw invalid('send table_id or table_ids, not both');
+  if (!hasOne && !hasMany) return undefined;
+  const ids = hasOne ? [body.table_id] : body.table_ids;
+  if (ids.length === 0) throw invalid('table_ids must not be empty');
+  if (new Set(ids).size !== ids.length) throw invalid('table_ids must not repeat a table');
+  ids.forEach((id) => checkId(id, 'table_ids'));
+  return ids;
+}
+
 function create(store, user, body, now) {
-  checkTypes(body, FIELDS);
-  for (const name of [...FIELDS, 'party_size']) {
+  checkTypes(body, ['restaurant_id', 'starts_at_local']);
+  checkTableTypes(body);
+  for (const name of ['restaurant_id', 'starts_at_local', 'party_size']) {
     if (!(name in body)) throw invalid(`${name} is required`);
   }
+  if (!('table_id' in body) && !('table_ids' in body)) throw invalid('table_id or table_ids is required');
   checkId(body.restaurant_id, 'restaurant_id');
-  checkId(body.table_id, 'table_id');
+  const tableIds = readTableIds(body);
   checkStartFormat(body.starts_at_local);
   checkPartySize(body.party_size);
   const restaurant = store.restaurants.get(body.restaurant_id);
   if (!restaurant) throw notFound('unknown restaurant');
-  const table = findTable(restaurant, body.table_id);
-  if (!table) throw notFound('unknown table');
+  const tables = B.resolveTables(restaurant, tableIds);
   const start = B.resolveStart(restaurant, body.starts_at_local);
-  B.checkCapacity(table, body.party_size);
+  B.checkCapacity(tables, body.party_size);
   const rec = {
     id: store.nextId('res_', store.reservations),
     reference: store.nextReference(),
     user_id: user.id,
     restaurant_id: restaurant.id,
-    table_id: table.id,
+    table_ids: tables.map((t) => t.id),
     party_size: body.party_size,
     status: 'confirmed',
     starts_at_local: body.starts_at_local,
@@ -83,34 +103,33 @@ function cancel(store, user, reference, now) {
 
 // Type-checks an amendment's fields (400 on a wrong JSON type).
 function readAmendment(body) {
-  checkTypes(body, ['table_id', 'starts_at_local']);
-  return { table_id: body.table_id, starts_at_local: body.starts_at_local, party_size: body.party_size };
+  checkTypes(body, ['starts_at_local']);
+  checkTableTypes(body);
+  return body;
 }
 
 // The amended record for `rec`, validated but not committed. Order: cancelled,
-// cutoff, field values, table, time rules, capacity. Occupancy is the caller's.
+// cutoff, field values, tables, time rules, capacity. Occupancy is the caller's.
 function planAmendment(store, rec, change, nowMs) {
   const restaurant = store.restaurants.get(rec.restaurant_id);
   B.checkNotCancelled(rec);
   B.checkCutoff(restaurant, rec, nowMs);
-  if (change.table_id !== undefined) checkId(change.table_id, 'table_id');
+  const tableIds = readTableIds(change);
   if (change.starts_at_local !== undefined) checkStartFormat(change.starts_at_local);
   if (change.party_size !== undefined) checkPartySize(change.party_size);
-  const tableId = change.table_id === undefined ? rec.table_id : change.table_id;
-  const table = findTable(restaurant, tableId);
-  if (!table) throw notFound('unknown table');
-  const next = { ...rec, table_id: tableId };
+  const tables = B.resolveTables(restaurant, tableIds === undefined ? rec.table_ids : tableIds);
+  const next = { ...rec, table_ids: tables.map((t) => t.id) };
   if (change.starts_at_local !== undefined) {
     next.start_ms = B.resolveStart(restaurant, change.starts_at_local);
     next.starts_at_local = change.starts_at_local;
   }
   if (change.party_size !== undefined) next.party_size = change.party_size;
-  if (change.table_id !== undefined || change.party_size !== undefined) B.checkCapacity(table, next.party_size);
+  if (tableIds !== undefined || change.party_size !== undefined) B.checkCapacity(tables, next.party_size);
   return next;
 }
 
 function moved(before, after) {
-  return before.table_id !== after.table_id || before.start_ms !== after.start_ms;
+  return before.table_ids.join('\n') !== after.table_ids.join('\n') || before.start_ms !== after.start_ms;
 }
 
 function amend(store, user, reference, body, now) {
