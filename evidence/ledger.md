@@ -28,3 +28,5 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | Time | Stage | Step | Round | Revision | Owes | Note |
 |---|---|---|---|---|---|---|
 | 06:33 | - | intake | - | 974014c | - | Task received, seats confirmed |
+| 06:42 | 1 | orders sent | 1 | 447a0a5 | builder: revision by 07:05; examiner: clauses+seal by 07:00 | Full spec pasted in 3 parts each |
+| 06:44 | 2 (look-ahead) | finisher order | - | - | finisher: design brief by 07:05, static UI in evidence/design/ui/ by ~07:30 | Stage 1 has no surface; finisher builds stage-2 UI outside stage folders |
