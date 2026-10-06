@@ -135,6 +135,8 @@ with sync_playwright() as p:
     check("copy control puts the reference on the clipboard", page.evaluate("navigator.clipboard.readText()") == ref2)
 
     # Wide screens: panel beside the chosen time, and it stays in view while scrolling.
+    page.evaluate("document.querySelector('.slot-row.is-chosen').scrollIntoView({block: 'center'})")
+    page.wait_for_timeout(200)
     row = page.locator(".slot-row.is-chosen").bounding_box()
     panel = page.locator(".booking-panel").bounding_box()
     check("panel sits beside chosen time", panel["x"] > row["x"] + row["width"]

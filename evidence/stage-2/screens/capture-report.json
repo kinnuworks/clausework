@@ -1,0 +1,242 @@
+[
+ {
+  "width": 375,
+  "screen": "01-search-empty",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "02-search-loading",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "03-grid-signed-out",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "04-grid-auth-needed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "05-no-slots",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "06-signup",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "07-login-error",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "08-booking-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "09-booking-uncertain",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "10-booking-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "11-booking-refused",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "12-combo-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "13-combo-grid-full",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "14-lookup-not-found",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "15-lookup-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 375,
+  "screen": "16-lookup-cancelled",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "01-search-empty",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "02-search-loading",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "03-grid-signed-out",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "04-grid-auth-needed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "05-no-slots",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "06-signup",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "07-login-error",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "08-booking-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "09-booking-uncertain",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "10-booking-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "11-booking-refused",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "12-combo-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "13-combo-grid-full",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "14-lookup-not-found",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "15-lookup-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 768,
+  "screen": "16-lookup-cancelled",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "01-search-empty",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "02-search-loading",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "03-grid-signed-out",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "04-grid-auth-needed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "05-no-slots",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "06-signup",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "07-login-error",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "08-booking-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "09-booking-uncertain",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "10-booking-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "11-booking-refused",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "12-combo-chosen",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "13-combo-grid-full",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "14-lookup-not-found",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "15-lookup-confirmed",
+  "sideways_overflow_px": 0
+ },
+ {
+  "width": 1280,
+  "screen": "16-lookup-cancelled",
+  "sideways_overflow_px": 0
+ }
+]
