@@ -47,6 +47,10 @@ The numbers above are what the factory did about the part nobody ships.
 No human commit touches `stage-N/` or `evidence/`. Human commits are the mandates (before
 the run) and `README.md`, `FACTORY.md`, `room.json`, `kit/`, `portability/` (after it).
 
+## Live demo
+
+https://clausework-vef3.onrender.com — stage 4 exactly as the band built it, on a free host, loaded with demo data on start ([`demo/`](demo/)). Sign in with `ada@example.com` / `correct horse`. The host sleeps when idle, so the first request can take up to a minute, and bookings reset on restart.
+
 ## Run it
 
 ```sh
