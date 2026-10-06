@@ -43,3 +43,4 @@ All five seats present in room at 06:33 (dhirajkavuri/{lead,builder,finisher,exa
 | 07:00 | 1 | ruling | - | 14b7fe2 | - | S1-97 final: moves errors resolved per item in input order (404→422 restaurant→409 cancelled→409 cutoff→field codes), occupancy last. Frozen fa79f76 already conforms (inspector verified) |
 | 07:00 | 2 | seal in | 1 | 5af0d19 | builder: revision by 07:40 | 52 rows, 78 probes (incl. 53 stage-1, 11 Playwright UI, 1 compat), seal ed593705…c047 |
 | 07:01 | 2 | seal v2 | 1 | ffec895 | - | Seal replaced (before any reveal): 6a3480c8…d4ca0, 79 probes, adds F1 depth-3000 regression. TK_S1_URL must be a container from git archive stage-1-frozen |
+| 07:02 | 2 | builder status | 1 | c6f3a5a | finisher: copy UI into stage-2/ui/; builder: final report after UI | Isolated: S1 120/120, S2 25/25, claimed stage 2 (UI empty yet) |
