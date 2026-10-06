@@ -89,8 +89,8 @@ function tile(option, slot, ctx) {
   return { button, available };
 }
 
-// Phone packing order: first-fit decreasing into rows of `columns` seats, so no tile is
-// stranded alone on a line when a better arrangement exists. Visual order only.
+// Packing order: first-fit decreasing into rows of `columns` seats, so no tile is stranded
+// alone on a line. Applied to the DOM itself, so visual, reading and tab order agree.
 function packOrder(options, columns) {
   const spans = options.map((o) => Math.min(Math.max(o.capacity, 2), columns));
   const byWidth = spans.map((span, i) => ({ span, i })).sort((a, b) => b.span - a.span || a.i - b.i);
@@ -108,14 +108,11 @@ function packOrder(options, columns) {
 
 export function renderTimetable({ restaurant, slots, party, selectedKey, onPick }) {
   const { singles, pairs } = seatingOptions(restaurant, party);
-  const options = [...singles, ...pairs];
-  const phoneOrder = packOrder(options, 8);
+  const all = [...singles, ...pairs];
+  const order = packOrder(all, 8);
+  const options = all.map((option, i) => ({ option, at: order[i] })).sort((a, b) => a.at - b.at).map((x) => x.option);
   const rows = slots.map((slot) => {
-    const tiles = options.map((option, i) => {
-      const t = tile(option, slot, { party, selectedKey, onPick });
-      t.button.style.setProperty("--order-sm", String(phoneOrder[i]));
-      return t;
-    });
+    const tiles = options.map((option) => tile(option, slot, { party, selectedKey, onPick }));
     const open = tiles.filter((t) => t.available).length;
     const chosen = selectedKey && selectedKey.endsWith(`@${slot.starts_at_local}`);
     const time = hhmm(slot.starts_at_local);
